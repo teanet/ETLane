@@ -24,8 +24,8 @@ TODO: Add long description of the pod here.
   s.homepage         = 'https://github.com/teanet/ETLane'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'e.tyutyuev' => 'tea.net@me.com' }
-  s.source           = { :git => 'git@github.com:teanet/ETLane.git', :tag => s.version.to_s }
+  s.author           = { 'teanet' => 'tea.net@me.com' }
+  s.source           = { :git => 'https://github.com/teanet/ETLane.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/teanet'
 
   s.ios.deployment_target = '10.0'
