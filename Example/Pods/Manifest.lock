@@ -1,0 +1,16 @@
+PODS:
+  - ETLane (0.1.0)
+
+DEPENDENCIES:
+  - ETLane (from `../`)
+
+EXTERNAL SOURCES:
+  ETLane:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  ETLane: 26aee4a9aac3ead0dd4fe747f99085c5129a6d17
+
+PODFILE CHECKSUM: 3e18bce5bf2806cd48ee6736410240af25bd7d1b
+
+COCOAPODS: 1.8.4

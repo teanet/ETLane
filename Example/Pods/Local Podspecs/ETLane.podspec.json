@@ -1,0 +1,22 @@
+{
+  "name": "ETLane",
+  "version": "0.1.0",
+  "summary": "A short description of ETLane.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/e.tyutyuev/ETLane",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "e.tyutyuev": "e.tyutyuev@2gis.ru"
+  },
+  "source": {
+    "git": "https://github.com/e.tyutyuev/ETLane.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "ETLane/Classes/**/*"
+}

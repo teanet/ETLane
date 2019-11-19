@@ -1,0 +1,45 @@
+#
+# Be sure to run `pod lib lint ETLane.podspec' to ensure this is a
+# valid spec before submitting.
+#
+# Any lines starting with a # are optional, but their use is encouraged
+# To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
+#
+
+Pod::Spec.new do |s|
+  s.name             = 'ETLane'
+  s.version          = '0.1.0'
+  s.summary          = 'A short description of ETLane.'
+
+# This description is used to generate tags and improve search results.
+#   * Think: What does it do? Why did you write it? What is the focus?
+#   * Try to keep it short, snappy and to the point.
+#   * Write the description between the DESC delimiters below.
+#   * Finally, don't worry about the indent, CocoaPods strips it!
+
+  s.description      = <<-DESC
+TODO: Add long description of the pod here.
+                       DESC
+
+  s.homepage         = 'https://github.com/e.tyutyuev/ETLane'
+  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
+  s.license          = { :type => 'MIT', :file => 'LICENSE' }
+  s.author           = { 'e.tyutyuev' => 'e.tyutyuev@2gis.ru' }
+  s.source           = { :git => 'https://github.com/e.tyutyuev/ETLane.git', :tag => s.version.to_s }
+  s.social_media_url = 'https://twitter.com/teanet'
+
+  s.ios.deployment_target = '8.0'
+
+  s.source_files = 'ETLane/Classes/**/*'
+  s.resources = [
+    "ETLane/fastlane/",
+    "ETLane/Scripts/",
+  ]
+  # s.resource_bundles = {
+  #   'ETLane' => ['ETLane/Assets/*.png']
+  # }
+
+  # s.public_header_files = 'Pod/Classes/**/*.h'
+  # s.frameworks = 'UIKit', 'MapKit'
+  # s.dependency 'AFNetworking', '~> 2.3'
+end

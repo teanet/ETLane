@@ -1,0 +1,13 @@
+app_identifier "" # The bundle identifier of your app
+apple_id "e.tyutyuev@gmail.com" # Your Apple email address
+# You can run getTeamNames from CommonFastfile to get it
+team_name ""
+team_id "" # Developer Portal Team ID
+itc_team_id "" # AppsetoreConnect Portal Team ID
+
+# https://my.slack.com/services/new/incoming-webhook/
+ENV["SLACK_URL"] = ""
+ENV["PROJECT_NAME"] = ""
+ENV["DISTRIBUTE_GROUP_NAME"] = ""
+ENV["FASTLANE_SKIP_DOCS"] = "1"
+ENV["EXTENSION_BUNDLE_IDS"] = ""
