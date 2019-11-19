@@ -30,8 +30,8 @@ TODO: Add long description of the pod here.
 
   s.ios.deployment_target = '10.0'
   s.resources = [
-    "ETLane/fastlane/*",
-    "ETLane/Scripts/*",
+    "Lanes/*",
+    "Scripts/*",
   ]
 
 end
