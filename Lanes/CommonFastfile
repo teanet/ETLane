@@ -8,6 +8,8 @@ platform :ios do
   distribute_group_name = ENV["DISTRIBUTE_GROUP_NAME"]
   project_name = ENV["PROJECT_NAME"]
   extension_bundle_ids = ENV["EXTENSION_BUNDLE_IDS"].split(",")
+  build_folder = File.join(Dir.pwd, "..", "build")
+  scripts_dir = File.join(Dir.pwd, "../Pods/ETLane/Scripts")
 
   desc "Push a new beta build to TestFlight"
   lane :beta do |options|
@@ -15,13 +17,13 @@ platform :ios do
     provisioning_profile = "AppStore_#{product_bundle_identifier}"
     username = options[:username]
 
-    get_certificates(output_path: "./build", username: username)
-    profile_uuid = get_provisioning_profile(output_path: "./build", username: username, app_identifier: product_bundle_identifier)
+    get_certificates(output_path: build_folder, username: username)
+    profile_uuid = get_provisioning_profile(output_path: build_folder, username: username, app_identifier: product_bundle_identifier)
     provisioningProfiles = Hash.new
     provisioningProfiles[product_bundle_identifier] = profile_uuid
     for extension_bundle_id in extension_bundle_ids do
       extension_bundle_identifier = "#{product_bundle_identifier}.#{extension_bundle_id}"
-      extension_profile_uuid = get_provisioning_profile(output_path: "./build", username: username, app_identifier: extension_bundle_identifier)
+      extension_profile_uuid = get_provisioning_profile(output_path: build_folder, username: username, app_identifier: extension_bundle_identifier)
       provisioningProfiles[extension_bundle_identifier] = extension_profile_uuid
     end
 
@@ -30,7 +32,7 @@ platform :ios do
       workspace: "#{project_name}.xcworkspace", 
       export_xcargs: "PROVISIONING_PROFILE_SPECIFIER='#{provisioning_profile}' DEVELOPMENT_TEAM='#{team_id}' CODE_SIGN_STYLE='Manual'",
       scheme: project_name,
-      output_directory: "./build",
+      output_directory: build_folder,
       include_bitcode: false,
       skip_profile_detection: false,
         export_options: {
@@ -66,13 +68,19 @@ platform :ios do
   lane :metadata do |options|
     username = options[:username]
     skip_screenshots = options[:skip_screenshots] ? options[:skip_screenshots] : false
-    FileUtils.rm_rf("../build/metadata")
-    FileUtils.rm_rf("../build/screenshots")
-    Dir.chdir("../Scripts") do
+    skip_metadata = options[:skip_metadata] ? options[:skip_metadata] : false
+    google_sheet_tsv = ENV["GOOGLE_SHEET_TSV"]
+
+    metadata_path = File.join(build_folder, "metadata")
+    FileUtils.rm_rf(metadata_path)
+    screenshots_path = File.join(build_folder, "screenshots")
+    FileUtils.rm_rf(screenshots_path)
+
+    Dir.chdir(scripts_dir) do
       sh(
         "swift", "run", "Performance", 
-        options[:google_sheet_tsv],
-        "--output=./../../build",
+        google_sheet_tsv,
+        "--output=#{build_folder}",
         "--skip_screenshots=#{skip_screenshots}"
       )
     end
@@ -84,9 +92,9 @@ platform :ios do
       # edit_live: true,
       skip_binary_upload: true,
       skip_screenshots: skip_screenshots,
-      skip_metadata: false,
-      screenshots_path: "./build/screenshots",
-      metadata_path: "./build/metadata",
+      skip_metadata: skip_metadata,
+      screenshots_path: screenshots_path,
+      metadata_path: metadata_path,
       overwrite_screenshots: true
     )
   end
@@ -164,8 +172,7 @@ platform :ios do
   lane :first_time do |options|
     require "spaceship" 
     applePassword = options[:password]
-    
-    apple_id = CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
+    apple_id = options[:username] ? username = options[:username] : CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
     clientTunes = Spaceship::Tunes.login(apple_id, applePassword)
     client = Spaceship::Portal.login(apple_id, applePassword)
 
