@@ -9,6 +9,7 @@ platform :ios do
   project_name = ENV["PROJECT_NAME"]
   extension_bundle_ids = ENV["EXTENSION_BUNDLE_IDS"].split(",")
   build_folder = File.join(Dir.pwd, "..", "build")
+  last_commit_path = File.join(Dir.pwd, "last_commit")
   scripts_dir = File.join(Dir.pwd, "../Pods/ETLane/Scripts")
 
   desc "Push a new beta build to TestFlight"
@@ -41,7 +42,7 @@ platform :ios do
           provisioningProfiles: provisioningProfiles
       },
     )
-    last_commit = File.read('last_commit')
+    last_commit = File.read(last_commit_path)
     changelog = changelog_from_git_commits(
       quiet: true,
       between: [last_commit, "HEAD"],  # Optional, lets you specify a revision/tag range between which to collect commit info
@@ -104,7 +105,8 @@ platform :ios do
     if changelog
       version = options[:version] ? options[:version] : get_version_number(target: project_name) + " (" + get_build_number() + ")"
       # Сохраним текущий комит
-      File.write('last_commit', last_git_commit[:commit_hash])
+      File.write(last_commit_path, last_git_commit[:commit_hash])
+      git_add(path: last_commit_path)
       commit_bump(message: "Freeze changelog")
       push_to_git_remote
       slack(
@@ -148,8 +150,7 @@ platform :ios do
   lane :commit_bump do |options|
     commit_version_bump(
       message: options[:message], 
-      force: true, 
-      include: ["voca/fastlane/last_commit"],
+      force: true,
       xcodeproj: "#{project_name}.xcodeproj"
     )
   end
