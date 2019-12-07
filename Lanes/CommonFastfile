@@ -77,6 +77,11 @@ platform :ios do
     screenshots_path = File.join(build_folder, "screenshots")
     FileUtils.rm_rf(screenshots_path)
 
+    cocoapods(
+      try_repo_update_on_error: true,
+      use_bundle_exec: true,
+    )
+    
     Dir.chdir(scripts_dir) do
       sh(
         "swift", "run", "Performance", 
