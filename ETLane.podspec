@@ -29,9 +29,5 @@ TODO: Add long description of the pod here.
   s.social_media_url = 'https://twitter.com/teanet'
 
   s.ios.deployment_target = '10.0'
-  s.resources = [
-    "Lanes/*",
-    "Scripts/*",
-  ]
-
+  s.preserve_paths = 'Scripts/*', 'Lanes/*'
 end

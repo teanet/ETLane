@@ -1,5 +1,5 @@
 PODS:
-  - ETLane (0.1.0)
+  - ETLane (0.1.10)
 
 DEPENDENCIES:
   - ETLane (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ETLane: 26aee4a9aac3ead0dd4fe747f99085c5129a6d17
+  ETLane: 8f7e641b0c44ff8e7b6ef993ca47299435231b96
 
 PODFILE CHECKSUM: 3e18bce5bf2806cd48ee6736410240af25bd7d1b
 

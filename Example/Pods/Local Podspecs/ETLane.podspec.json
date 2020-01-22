@@ -1,22 +1,26 @@
 {
   "name": "ETLane",
-  "version": "0.1.0",
+  "version": "0.1.10",
   "summary": "A short description of ETLane.",
   "description": "TODO: Add long description of the pod here.",
-  "homepage": "https://github.com/e.tyutyuev/ETLane",
+  "homepage": "https://github.com/teanet/ETLane",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
   },
   "authors": {
-    "e.tyutyuev": "e.tyutyuev@2gis.ru"
+    "teanet": "tea.net@me.com"
   },
   "source": {
-    "git": "https://github.com/e.tyutyuev/ETLane.git",
-    "tag": "0.1.0"
+    "git": "https://github.com/teanet/ETLane.git",
+    "tag": "0.1.10"
   },
+  "social_media_url": "https://twitter.com/teanet",
   "platforms": {
-    "ios": "8.0"
+    "ios": "10.0"
   },
-  "source_files": "ETLane/Classes/**/*"
+  "preserve_paths": [
+    "Scripts/*",
+    "Lanes/*"
+  ]
 }
