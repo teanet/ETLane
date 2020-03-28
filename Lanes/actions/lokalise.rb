@@ -69,6 +69,13 @@ module Fastlane
             unzip_file("lokalisetmp/a.zip", destination, clean_destination)
             FileUtils.remove_dir("lokalisetmp")
             UI.success "Localizations extracted to #{destination} 📗 📕 📘"
+
+            fr_path = File.join(destination, "fr-FR.lproj")
+            if File.exist?(fr_path)
+              FileUtils.copy_entry(fr_path, File.join(destination, "fr.lproj"))
+              FileUtils.copy_entry(fr_path, File.join(destination, "fr-CA.lproj"))
+            end
+
           else
             UI.error "Response did not include ZIP"
           end
