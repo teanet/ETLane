@@ -4,9 +4,7 @@ import Common
 struct Args {
 	var output: String = ""
 	var skip_screenshots: Bool = false
-	var skip_preview: Bool = true
-//	var metricsPath: String = ""
-//	var links: [Link] = []
+	var download_preview: Bool = false
 	var labels = [String]()
 
 	public enum ArgsError: Error {

@@ -33,11 +33,10 @@ do {
 		try downloader.download(deploys: deploys)
 	}
 
-	if !args.skip_preview {
+	if args.download_preview {
 		let downloader = PreviewDownloader(outputURL: outputURL)
 		try downloader.download(deploys: deploys)
 	}
-
 
 } catch {
 	print("\(error.locd)")

@@ -67,6 +67,7 @@ final class PreviewDownloader {
 		self.session.downloadTask(with: request) { (url, response, error) in
 			if let url = url, error == nil {
 				do {
+					try? FileManager.default.removeItem(at: to)
 					try FileManager.default.copyItem(at: url, to: to)
 					print("Did finish download: \(from)")
 				} catch {

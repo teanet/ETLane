@@ -70,6 +70,7 @@ platform :ios do
     username = options[:username]
     skip_screenshots = options[:skip_screenshots] != nil ? options[:skip_screenshots] : false
     skip_preview = options[:skip_preview] != nil ? options[:skip_preview] : true
+    download_preview = options[:download_preview] != nil ? options[:download_preview] : false
     skip_metadata = options[:skip_metadata] != nil ? options[:skip_metadata] : false
     google_sheet_tsv = ENV["GOOGLE_SHEET_TSV"]
 
@@ -92,7 +93,7 @@ platform :ios do
         google_sheet_tsv,
         "--output=#{build_folder}",
         "--skip_screenshots=#{skip_screenshots}",
-        "--skip_preview=#{skip_preview}"
+        "--download_preview=#{download_preview}"
       )
     end
     deliver(
@@ -122,7 +123,7 @@ platform :ios do
       Dir.chdir(preview_path) do
       dirs = Dir.glob(File.join(preview_path, "*")).select { |f| File.directory?(f) }
       end
-      dirs = Dir.entries(preview_path).select { |f| not File.directory?(f) and f != '.DS_Store' } # && 
+      dirs = Dir.entries(preview_path).select { |f| not File.directory?(f) and f != '.DS_Store' }
       for locale in dirs do
         locale_path = File.join(preview_path, locale)
         timestamp = "00.00"

@@ -42,9 +42,9 @@
 		6B054BBDF3931806C5ED6D89 /* Pods-ETLane_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ETLane_Tests.debug.xcconfig"; path = "Target Support Files/Pods-ETLane_Tests/Pods-ETLane_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		73627DF6FDF01313195FC91B /* Pods_ETLane_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ETLane_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7626B9ADA146A26B9D8709A3 /* Pods_ETLane_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ETLane_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7A88F4004FE0EA1807EC2955 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		7CFB5FF1239229C7BCA7A504 /* ETLane.podspec */ = {isa = PBXFileReference; includeInIndex = 1; name = ETLane.podspec; path = ../ETLane.podspec; sourceTree = "<group>"; };
-		910D70DFF109EB0F55868A0B /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		7A88F4004FE0EA1807EC2955 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		7CFB5FF1239229C7BCA7A504 /* ETLane.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ETLane.podspec; path = ../ETLane.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		910D70DFF109EB0F55868A0B /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		AEBD013948A7C3839F5F1497 /* Pods-ETLane_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ETLane_Tests.release.xcconfig"; path = "Target Support Files/Pods-ETLane_Tests/Pods-ETLane_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		E242AE797BED37D9887F7FB5 /* Pods-ETLane_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ETLane_Example.release.xcconfig"; path = "Target Support Files/Pods-ETLane_Example/Pods-ETLane_Example.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -156,7 +156,6 @@
 				6B054BBDF3931806C5ED6D89 /* Pods-ETLane_Tests.debug.xcconfig */,
 				AEBD013948A7C3839F5F1497 /* Pods-ETLane_Tests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -226,6 +225,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
