@@ -4,6 +4,7 @@ import Common
 struct Args {
 	var output: String = ""
 	var skip_screenshots: Bool = false
+	var skip_preview: Bool = true
 //	var metricsPath: String = ""
 //	var links: [Link] = []
 	var labels = [String]()
@@ -17,7 +18,6 @@ struct Args {
 	func check() throws {
 		if self.labels.isEmpty { throw ArgsError.noTSVPath }
 		if self.output.isEmpty { throw ArgsError.noOutputPath }
-//		if self.label.isEmpty { throw ArgsError.noLabel }
 	}
 }
 

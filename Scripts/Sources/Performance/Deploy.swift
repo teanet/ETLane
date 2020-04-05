@@ -29,11 +29,16 @@ extension Deploy {
 		case iPhone8
 		case iPhoneX
 		case releaseNotes
+		case iPhone8Preview
+		case iPhoneXPreview
+		case previewTimestamp
 	}
 
-	init?(string: String) {
-		let cmp = string.components(separatedBy: "\t")
-		guard cmp.count == Key.allCases.count else { return nil }
+	init(string: String) {
+		var cmp = string.components(separatedBy: "\t")
+		while cmp.count < Key.allCases.count {
+			cmp.append("")
+		}
 		self.items = cmp
 	}
 

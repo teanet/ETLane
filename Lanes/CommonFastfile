@@ -68,14 +68,18 @@ platform :ios do
 
   lane :metadata do |options|
     username = options[:username]
-    skip_screenshots = options[:skip_screenshots] ? options[:skip_screenshots] : false
-    skip_metadata = options[:skip_metadata] ? options[:skip_metadata] : false
+    skip_screenshots = options[:skip_screenshots] != nil ? options[:skip_screenshots] : false
+    skip_preview = options[:skip_preview] != nil ? options[:skip_preview] : true
+    skip_metadata = options[:skip_metadata] != nil ? options[:skip_metadata] : false
     google_sheet_tsv = ENV["GOOGLE_SHEET_TSV"]
 
     metadata_path = File.join(build_folder, "metadata")
     FileUtils.rm_rf(metadata_path)
     screenshots_path = File.join(build_folder, "screenshots")
-    FileUtils.rm_rf(screenshots_path)
+    preview_path = File.join(build_folder, "previews")
+    if !skip_screenshots
+      FileUtils.rm_rf(screenshots_path)
+    end
 
     cocoapods(
       try_repo_update_on_error: true,
@@ -87,7 +91,8 @@ platform :ios do
         "swift", "run", "Performance", 
         google_sheet_tsv,
         "--output=#{build_folder}",
-        "--skip_screenshots=#{skip_screenshots}"
+        "--skip_screenshots=#{skip_screenshots}",
+        "--skip_preview=#{skip_preview}"
       )
     end
     deliver(
@@ -103,6 +108,47 @@ platform :ios do
       metadata_path: metadata_path,
       overwrite_screenshots: true
     )
+
+    if !skip_preview
+      FileUtils.rm_rf(preview_path)
+      fastlane_require 'spaceship'
+      Spaceship.login
+      spaceship = Spaceship::Tunes.login(options[:username])
+      spaceship.team_id = CredentialsManager::AppfileConfig.try_fetch_value(:itc_team_id)
+      product_bundle_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+      app = Spaceship::Tunes::Application.find(product_bundle_identifier)
+      app_version = app.edit_version()
+      dirs = []
+      Dir.chdir(preview_path) do
+      dirs = Dir.glob(File.join(preview_path, "*")).select { |f| File.directory?(f) }
+      end
+      dirs = Dir.entries(preview_path).select { |f| not File.directory?(f) and f != '.DS_Store' } # && 
+      for locale in dirs do
+        locale_path = File.join(preview_path, locale)
+        timestamp = "00.00"
+        locale_files = Dir.entries(locale_path).select {|f| not File.directory?(f) }
+        puts locale_files
+        for file in locale_files do
+          if file == "timestamp"
+            timestamp = File.read(File.join(locale_path, file))
+          end
+        end
+
+        for file in locale_files do
+          video_path = File.join(locale_path, file)
+          if File.extname(file).downcase == ".mp4"
+            size = File.size(video_path)
+            if size > 500000
+              file_name = file.split('.')[0] 
+              puts "Upload: #{video_path}"
+              upload = app_version.upload_trailer!(video_path, 1, locale, file_name, timestamp)              
+            else
+              puts "#{video_path} too small, #{size}b"
+            end
+          end
+        end
+      end
+    end
   end
 
   lane :notify_changes do |options|
@@ -198,4 +244,3 @@ platform :ios do
   end
 
 end
-

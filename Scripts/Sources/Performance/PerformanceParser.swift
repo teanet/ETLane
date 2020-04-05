@@ -6,6 +6,7 @@ class PerformanceParser: ArgumentParser<Args> {
 		super.init(into: Args())
 		self.addArgument("--output", \.output, help: "Path to output folder") { $0 }
 		self.addArgument("--skip_screenshots", \.skip_screenshots, help: "Skip screenshots?") { $0 == "true" }
+		self.addArgument("--skip_preview", \.skip_preview, help: "Skip preview?") { $0 == "true" }
 		self.addArgument(nil, \.labels)
 //		self.addArgument("--links", \Args.links, help: "Tag1:URL1,Tag2:URL2") {
 //			let linksStrings = $0.components(separatedBy: ",")
