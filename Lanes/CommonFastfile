@@ -129,11 +129,11 @@ platform :ios do
       dirs = Dir.entries(preview_path).select { |f| not File.directory?(f) and f != '.DS_Store' }
       for locale in dirs do
         locale_path = File.join(preview_path, locale)
-        timestamp = "00.00"
+        timestamp = "00.10"
         locale_files = Dir.entries(locale_path).select {|f| not File.directory?(f) }
         puts locale_files
         for file in locale_files do
-          if file == "timestamp"
+          if file == "timestamp.txt"
             timestamp = File.read(File.join(locale_path, file))
           end
         end
