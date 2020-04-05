@@ -86,6 +86,10 @@ platform :ios do
       try_repo_update_on_error: true,
       use_bundle_exec: true,
     )
+
+    if download_preview
+      FileUtils.rm_rf(preview_path)
+    end
     
     Dir.chdir(scripts_dir) do
       sh(
@@ -111,7 +115,6 @@ platform :ios do
     )
 
     if !skip_preview
-      FileUtils.rm_rf(preview_path)
       fastlane_require 'spaceship'
       Spaceship.login
       spaceship = Spaceship::Tunes.login(options[:username])
