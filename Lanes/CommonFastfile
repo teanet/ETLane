@@ -55,14 +55,20 @@ platform :ios do
     version = get_version_number(target: project_name) + " (" + get_build_number() + ")"
     increment_and_push()
     ENV["FL_CHANGELOG"] = nil
+
+    beta_app_review_info = {}
+    if ENV["ET_BETA_APP_REVIEW_INFO"]
+      beta_app_review_info = eval(ENV["ET_BETA_APP_REVIEW_INFO"])
+    end
+
     upload_to_testflight(
       skip_waiting_for_build_processing: skip_processing, 
       username: username,
+      beta_app_review_info: beta_app_review_info,
       distribute_external: true,
       changelog: "",
       groups: ["#{distribute_group_name}"]
     )
-    # changelog: changelog
     notify_changes(changelog: changelog, version: version)
   end
 
