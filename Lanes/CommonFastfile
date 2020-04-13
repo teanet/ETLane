@@ -14,7 +14,6 @@ platform :ios do
 
   desc "Push a new beta build to TestFlight"
   lane :beta do |options|
-    skip_processing = false #UI.select("Skip waiting for build upload to TestFlight?: ", [true, false])
     provisioning_profile = "AppStore_#{product_bundle_identifier}"
     username = options[:username]
 
@@ -62,10 +61,8 @@ platform :ios do
     end
 
     upload_to_testflight(
-      skip_waiting_for_build_processing: skip_processing, 
       username: username,
       beta_app_review_info: beta_app_review_info,
-      distribute_external: true,
       changelog: "",
       groups: ["#{distribute_group_name}"]
     )
