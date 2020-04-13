@@ -72,8 +72,7 @@ platform :ios do
   lane :metadata do |options|
     username = options[:username]
     skip_screenshots = options[:skip_screenshots] != nil ? options[:skip_screenshots] : false
-    skip_preview = options[:skip_preview] != nil ? options[:skip_preview] : true
-    download_preview = options[:download_preview] != nil ? options[:download_preview] : false
+    upload_preview = options[:upload_preview] != nil ? options[:upload_preview] : false
     skip_metadata = options[:skip_metadata] != nil ? options[:skip_metadata] : false
     google_sheet_tsv = ENV["GOOGLE_SHEET_TSV"]
 
@@ -90,17 +89,13 @@ platform :ios do
       use_bundle_exec: true,
     )
 
-    if download_preview
-      FileUtils.rm_rf(preview_path)
-    end
-    
     Dir.chdir(scripts_dir) do
       sh(
         "swift", "run", "Performance", 
         google_sheet_tsv,
         "--output=#{build_folder}",
         "--skip_screenshots=#{skip_screenshots}",
-        "--download_preview=#{download_preview}"
+        "--download_preview=false"
       )
     end
     deliver(
@@ -117,44 +112,10 @@ platform :ios do
       overwrite_screenshots: true
     )
 
-    if !skip_preview
-      fastlane_require 'spaceship'
-      Spaceship.login
-      spaceship = Spaceship::Tunes.login(options[:username])
-      spaceship.team_id = CredentialsManager::AppfileConfig.try_fetch_value(:itc_team_id)
-      product_bundle_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
-      app = Spaceship::Tunes::Application.find(product_bundle_identifier)
-      app_version = app.edit_version()
-      dirs = []
-      Dir.chdir(preview_path) do
-      dirs = Dir.glob(File.join(preview_path, "*")).select { |f| File.directory?(f) }
-      end
-      dirs = Dir.entries(preview_path).select { |f| not File.directory?(f) and f != '.DS_Store' }
-      for locale in dirs do
-        locale_path = File.join(preview_path, locale)
-        timestamp = "00.10"
-        locale_files = Dir.entries(locale_path).select {|f| not File.directory?(f) }
-        puts locale_files
-        for file in locale_files do
-          if file == "timestamp.txt"
-            timestamp = File.read(File.join(locale_path, file))
-          end
-        end
-
-        for file in locale_files do
-          video_path = File.join(locale_path, file)
-          if File.extname(file).downcase == ".mp4"
-            size = File.size(video_path)
-            if size > 500000
-              file_name = file.split('.')[0] 
-              puts "Upload: #{video_path}"
-              upload = app_version.upload_trailer!(video_path, 1, locale, file_name, timestamp)              
-            else
-              puts "#{video_path} too small, #{size}b"
-            end
-          end
-        end
-      end
+    if upload_preview
+      ENV["FASTLANE_ITUNES_TRANSPORTER_PATH"] = "/Applications/Transporter.app/Contents/itms/"
+      ENV["FASTLANE_ITUNES_TRANSPORTER_USE_SHELL_SCRIPT"] = "1"
+      previews(username: username)
     end
   end
 
