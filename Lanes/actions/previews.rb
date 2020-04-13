@@ -7,11 +7,15 @@ module Fastlane
       def self.run(params)
         require 'rexml/document'
 
-        @user = params[:username]
-        app_id = params[:app_id]
-        a = CredentialsManager::AccountManager.new(user: @user, prefix: "deliver.appspecific", note: "application-specific")
-        @password = a.password(ask_if_missing: true) # to ask the user for the missing value
-        transporter = FastlaneCore::ItunesTransporter.new(@user)
+        user = params[:username]
+        product_bundle_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+        spaceship = Spaceship::Tunes.login(user)
+        spaceship.team_id = CredentialsManager::AppfileConfig.try_fetch_value(:itc_team_id)
+        app = Spaceship::Tunes::Application.find(product_bundle_identifier)
+        app_id = app.apple_id()
+        # a = CredentialsManager::AccountManager.new(user: user, prefix: "deliver.appspecific", note: "application-specific")
+        # @password = a.password(ask_if_missing: true) # to ask the user for the missing value
+        transporter = FastlaneCore::ItunesTransporter.new(user)
         destination = "/tmp"
         itmsp_path = File.join(destination, "#{app_id}.itmsp")
         transporter.download(app_id, destination)
@@ -112,14 +116,6 @@ module Fastlane
             key: :username,
             env_name: "PREVIEW_USER_NAME",
             description: "User",
-            verify_block: proc do |value|
-               UI.user_error! "No API token for Lokalise given, pass using `api_token: 'token'`" unless (value and not value.empty?)
-            end
-          ),
-          FastlaneCore::ConfigItem.new(
-            key: :app_id,
-            env_name: "PREVIEW_APP_ID",
-            description: "Itunes app id",
             verify_block: proc do |value|
                UI.user_error! "No API token for Lokalise given, pass using `api_token: 'token'`" unless (value and not value.empty?)
             end
