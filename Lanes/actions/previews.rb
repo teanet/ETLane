@@ -27,7 +27,11 @@ module Fastlane
         doc = REXML::Document.new(File.read(metadata_path))
         current_version = doc.root.elements["software/software_metadata/versions[1]/version"]
 
+        software_metadata = doc.root.elements["software/software_metadata"]
+        software_metadata.elements.delete("products")
+        software_metadata.elements.delete("in_app_purchases")
         versions = doc.root.elements["software/software_metadata/versions"]
+
         old_version = versions.elements[2]
         if old_version
           puts "Romove old version"
@@ -41,7 +45,14 @@ module Fastlane
 
           element.elements.delete("app_previews")
           element.elements.delete("software_screenshots")
-          
+          element.elements.delete("title")
+          element.elements.delete("subtitle")
+          element.elements.delete("description")
+          element.elements.delete("version_whats_new")
+          element.elements.delete("privacy_url")
+          element.elements.delete("support_url")
+          element.elements.delete("keywords")
+
           locale = element.attributes["name"]
           locale_path = File.join(preview_path, locale)
           # если нет папки с локалью, значит удаляем видео
