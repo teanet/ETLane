@@ -101,19 +101,42 @@ platform :ios do
       )
     end
 
-    deliver(
-      username: username,
-      submit_for_review: false,
-      ignore_language_directory_validation: true,
-      force: true,
-      # edit_live: true,
-      skip_binary_upload: true,
-      skip_screenshots: skip_screenshots,
-      skip_metadata: skip_metadata,
-      screenshots_path: screenshots_path,
-      metadata_path: metadata_path,
-      overwrite_screenshots: true
-    )
+    begin
+      deliver(
+        username: username,
+        submit_for_review: false,
+        ignore_language_directory_validation: true,
+        force: true,
+        # edit_live: true,
+        skip_binary_upload: true,
+        skip_screenshots: skip_screenshots,
+        skip_metadata: skip_metadata,
+        screenshots_path: screenshots_path,
+        metadata_path: metadata_path,
+        overwrite_screenshots: true,
+      )
+    rescue => ex
+      UI.error(ex)
+      if ex.to_s.start_with?("The app name you entered is already being used.")
+        UI.error("Try to detect issue...")
+        deliver(
+          username: username,
+          submit_for_review: false,
+          ignore_language_directory_validation: true,
+          force: true,
+          # edit_live: true,
+          skip_binary_upload: true,
+          skip_screenshots: skip_screenshots,
+          skip_metadata: skip_metadata,
+          screenshots_path: screenshots_path,
+          metadata_path: metadata_path,
+          overwrite_screenshots: true,
+          individual_metadata_items: ['name', 'keywords', 'description'],
+        )
+      else
+      end
+    end
+    
 
     if upload_preview
       ENV["FASTLANE_ITUNES_TRANSPORTER_PATH"] = "/Applications/Transporter.app/Contents/itms/"
