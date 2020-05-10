@@ -95,9 +95,12 @@ platform :ios do
         google_sheet_tsv,
         "--output=#{build_folder}",
         "--skip_screenshots=#{skip_screenshots}",
-        "--download_preview=false"
+        "--download_preview=false",
+        "--figmaToken=#{ENV["FIGMA_TOKEN"]}",
+        "--figmaProjectId=#{ENV["FIGMA_PROJECT_ID"]}"
       )
     end
+
     deliver(
       username: username,
       submit_for_review: false,
