@@ -29,7 +29,11 @@ do {
 	}
 
 	if !args.skip_screenshots {
-		let downloader = ScreenshotDownloader(outputURL: outputURL)
+		let downloader = ScreenshotDownloader(
+			outputURL: outputURL,
+			token: args.figmaToken,
+			projectId: args.figmaProjectId
+		)
 		try downloader.download(deploys: deploys)
 	}
 

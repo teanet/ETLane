@@ -6,9 +6,10 @@ public final class Api {
 		init() {}
 	}
 
-	enum ApiError: Error {
+	public enum ApiError: Error {
 		case nilDataError
 		case pathError
+		case repeatCountLimitReached
 	}
 
 	enum Method: String {

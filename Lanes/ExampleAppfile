@@ -26,4 +26,6 @@ ENV["ET_BETA_APP_REVIEW_INFO"] = {
 	demo_account_password: "",
 	notes: ""
 }.to_s
+ENV["FIGMA_TOKEN"] = ""
+ENV["FIGMA_PROJECT_ID"] = ""
 

@@ -4,8 +4,31 @@ import Foundation
 final class ScreenshotDownloader {
 
 	private let outputURL: URL
-	init(outputURL: URL) {
+	private let token: String
+	private let projectId: String
+	init(outputURL: URL, token: String, projectId: String) {
 		self.outputURL = outputURL
+		self.token = token
+		self.projectId = projectId
+	}
+
+	let api = Api(baseURL: "https://api.figma.com/v1")
+
+	private func downloadIds(_ ids: [String], repeatCount: Int = 3) throws -> Images {
+		if repeatCount < 0 {
+			throw Api.ApiError.repeatCountLimitReached
+		}
+		do {
+			let images = try api.images(
+				token: self.token,
+				projectId: self.projectId,
+				ids: ids
+			)
+			return images
+		} catch {
+			print("Download batch error \(repeatCount - 1), try one more time: \(error.locd)")
+			return try self.downloadIds(ids, repeatCount: repeatCount - 1)
+		}
 	}
 
 	func download(deploys: [Deploy]) throws {
@@ -16,11 +39,10 @@ final class ScreenshotDownloader {
 			imageIDs.formUnion(deploy.iPhoneXIDs)
 		}
 
-		let api = Api(baseURL: "https://api.figma.com/v1")
 		var allImages = [Images]()
 
-		var downloadIDs = Array(imageIDs)
-		let batch = 5
+		let downloadIDs = Array(imageIDs)
+		let batch = 3
 		let figmaGroup = DispatchGroup()
 
 		for idx in stride(from: downloadIDs.indices.lowerBound, to: downloadIDs.indices.upperBound, by: batch) {
@@ -30,14 +52,10 @@ final class ScreenshotDownloader {
 			figmaGroup.enter()
 			DispatchQueue.global().async {
 				do {
-					let images = try api.images(
-						token: "25848-7b355d9f-7f96-448c-9c02-595ca702bf28",
-						projectId: "Z5blVY6lQWnQQ05mYrkCyK",
-						ids: Array(subsequence)
-					)
+					let images = try self.downloadIds(Array(subsequence), repeatCount: 3)
 					allImages.append(images)
 				} catch {
-					print("Download batch error: \(error.locd)")
+					print("Download batch error: \(error)")
 				}
 				figmaGroup.leave()
 			}
@@ -58,8 +76,7 @@ final class ScreenshotDownloader {
 					downloadGroup.enter()
 					let request = URLRequest(
 						url: imageURL,
-						cachePolicy: .
-						reloadIgnoringLocalCacheData,
+						cachePolicy: .reloadIgnoringLocalCacheData,
 						timeoutInterval: 5 * 60
 					)
 					session.downloadTask(with: request) { (url, r, e) in
