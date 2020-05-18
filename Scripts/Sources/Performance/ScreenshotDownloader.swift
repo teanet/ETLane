@@ -14,9 +14,9 @@ final class ScreenshotDownloader {
 
 	let api = Api(baseURL: "https://api.figma.com/v1")
 
-	private func downloadIds(_ ids: [String], repeatCount: Int = 3) throws -> Images {
+	private func downloadIds(_ ids: [String], repeatCount: Int = 5) -> Images? {
 		if repeatCount < 0 {
-			throw Api.ApiError.repeatCountLimitReached
+			return nil
 		}
 		do {
 			let images = try api.images(
@@ -26,8 +26,8 @@ final class ScreenshotDownloader {
 			)
 			return images
 		} catch {
-			print("Download batch error \(repeatCount - 1), try one more time: \(error.locd)")
-			return try self.downloadIds(ids, repeatCount: repeatCount - 1)
+			print("⛔️ Download batch error \(repeatCount - 1), try one more time: \(error.locd)")
+			return self.downloadIds(ids, repeatCount: repeatCount - 1)
 		}
 	}
 
@@ -42,65 +42,41 @@ final class ScreenshotDownloader {
 		var allImages = [Images]()
 
 		let downloadIDs = Array(imageIDs)
-		let batch = 3
+		let batch = 4
 		let figmaGroup = DispatchGroup()
 
 		for idx in stride(from: downloadIDs.indices.lowerBound, to: downloadIDs.indices.upperBound, by: batch) {
-			print("Fetching image batch: \(idx)")
+			print("⬇️ Fetching image batch: \(idx)")
 			let subsequence = downloadIDs[idx..<min(idx.advanced(by: batch), downloadIDs.count)]
 
 			figmaGroup.enter()
 			DispatchQueue.global().async {
-				do {
-					let images = try self.downloadIds(Array(subsequence), repeatCount: 3)
+				if let images = self.downloadIds(Array(subsequence), repeatCount: 6) {
 					allImages.append(images)
-				} catch {
-					print("Download batch error: \(error)")
+				} else {
+					print("💥 Download batch error, maybe we should limit requests other way")
+					exit(1)
 				}
 				figmaGroup.leave()
 			}
 		}
 		figmaGroup.wait()
 
-		let session = URLSession.shared
-		var imageData = [String: Data]()
-		let downloadGroup = DispatchGroup()
+		var allImagesKeys = [String: String]()
 		allImages
 			.compactMap { $0.images }
 			.filter { !$0.isEmpty }
 			.forEach { (images) in
-
-				for kv in images {
-					guard let imageURL = URL(string: kv.value) else { continue }
-					print("Download image with url: \(kv.value)")
-					downloadGroup.enter()
-					let request = URLRequest(
-						url: imageURL,
-						cachePolicy: .reloadIgnoringLocalCacheData,
-						timeoutInterval: 5 * 60
-					)
-					session.downloadTask(with: request) { (url, r, e) in
-						if let url = url {
-							do {
-								let data = try Data(contentsOf: url)
-								imageData[kv.key] = data
-								print("Did finish \(kv.value)")
-							} catch {
-								print("Did fail download: \(kv.value), \(error)")
-							}
-						} else if let error = e {
-							print("Did fail download: \(kv.value), \(error)")
-						}
-						downloadGroup.leave()
-					}.resume()
+				for image in images {
+					allImagesKeys[image.key] = image.value
 				}
-		}
-		downloadGroup.wait()
+			}
+		let imageData = DownloadBatch(images: allImagesKeys).download()
 
 		let screenshotsURL = self.outputURL.appendingPathComponent("screenshots")
 		let fm = FileManager.default
 		try fm.createDirectory(at: screenshotsURL, withIntermediateDirectories: true, attributes: [:])
-		print("Process screenshots at \(screenshotsURL)")
+		print("ℹ️ Process screenshots at \(screenshotsURL)")
 		for deploy in deploys {
 			let localeURL = screenshotsURL.appendingPathComponent(deploy[.locale])
 			do {
@@ -110,11 +86,11 @@ final class ScreenshotDownloader {
 					ids.enumerated().forEach {
 						let name = "\(prefix)_\($0.offset).jpg"
 						if let data = imageData[$0.element] {
-							print("Save screenshot \(name)")
+							print("ℹ️ Save screenshot \(localeURL.lastPathComponent)/\(name)")
 							do {
 								try data.write(to: localeURL.appendingPathComponent(name))
 							} catch {
-								print("Save screenshot error: \(error.locd)")
+								print("⛔️ Save screenshot error: \(error.locd)")
 							}
 						}
 					}
@@ -123,7 +99,7 @@ final class ScreenshotDownloader {
 				saveScreenshots(with: deploy.iPhone8IDs, prefix: "iphone8")
 				saveScreenshots(with: deploy.iPhoneXIDs, prefix: "iPhoneX")
 			} catch {
-				print("Create locale folder error: \(error.locd)")
+				print("⛔️ Create locale folder error: \(error.locd)")
 			}
 		}
 	}
