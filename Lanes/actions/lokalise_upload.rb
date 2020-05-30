@@ -5,9 +5,8 @@ module Fastlane
     class LokaliseUploadAction < Action
       def self.run(params)
         
-
+        self.snapshot(params)
         source = params[:source]
-
         languages = params[:languages]
         accepted_formats = [".strings", ".stringsdict"]
         Dir.chdir(source) do
@@ -60,6 +59,24 @@ module Fastlane
         # end
       end
 
+      def self.snapshot(params)
+        require 'net/http'
+        project_identifier = params[:project_identifier]
+        uri = URI("https://api.lokalise.com/api2/projects/#{project_identifier}/snapshots")
+        request_data = {
+          title: params[:snapshot_version],
+        }
+        request = Net::HTTP::Post.new(uri)
+        request.body = request_data.to_json
+        request['X-Api-Token'] = params[:api_token]
+        request['Content-Type'] = 'application/json'
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        response = http.request(request)
+        jsonResponse = JSON.parse(response.body)
+        puts jsonResponse
+      end
+
       def self.upload(lang, name, data, params)
         require 'net/http'
         token = params[:api_token]
@@ -69,6 +86,7 @@ module Fastlane
           filename: name,
           data: data,
           lang_iso: lang,
+          cleanup_mode: true,
         }
         uri = URI("https://api.lokalise.com/api2/projects/#{project_identifier}/files/upload")
         request = Net::HTTP::Post.new(uri)
@@ -96,6 +114,12 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :api_token,
                                        env_name: "LOKALISE_API_TOKEN",
                                        description: "API Token for Lokalise",
+                                       verify_block: proc do |value|
+                                          UI.user_error! "No API token for Lokalise given, pass using `api_token: 'token'`" unless (value and not value.empty?)
+                                       end),
+          FastlaneCore::ConfigItem.new(key: :snapshot_version,
+                                       env_name: "LOKALISE_SNAPSHOT_VERSION",
+                                       description: "snapshot version for Lokalise",
                                        verify_block: proc do |value|
                                           UI.user_error! "No API token for Lokalise given, pass using `api_token: 'token'`" unless (value and not value.empty?)
                                        end),
