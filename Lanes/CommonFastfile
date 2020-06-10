@@ -67,8 +67,9 @@ platform :ios do
       changelog: "",
       groups: ["#{distribute_group_name}"]
     )
+    tag = get_version_number(target: project_name) + "." + get_build_number()
     add_git_tag(
-      tag: version
+      tag: tag
     )
     push_to_git_remote
     notify_changes(changelog: changelog, version: version)
