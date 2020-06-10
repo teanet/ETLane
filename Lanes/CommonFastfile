@@ -66,6 +66,10 @@ platform :ios do
       changelog: "",
       groups: ["#{distribute_group_name}"]
     )
+    add_git_tag(
+      tag: version
+    )
+    push_to_git_remote
     notify_changes(changelog: changelog, version: version)
   end
 
