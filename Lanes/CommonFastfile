@@ -7,7 +7,7 @@ platform :ios do
   product_bundle_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
   distribute_group_name = ENV["DISTRIBUTE_GROUP_NAME"]
   project_name = ENV["PROJECT_NAME"]
-  extension_bundle_ids = ENV["EXTENSION_BUNDLE_IDS"].split(",")
+  
   build_folder = File.join(Dir.pwd, "..", "build")
   last_commit_path = File.join(Dir.pwd, "last_commit")
   scripts_dir = File.join(Dir.pwd, "../Pods/ETLane/Scripts")
@@ -21,6 +21,7 @@ platform :ios do
     profile_uuid = get_provisioning_profile(output_path: build_folder, username: username, app_identifier: product_bundle_identifier)
     provisioningProfiles = Hash.new
     provisioningProfiles[product_bundle_identifier] = profile_uuid
+    extension_bundle_ids = ENV["EXTENSION_BUNDLE_IDS"].split(",")
     for extension_bundle_id in extension_bundle_ids do
       extension_bundle_identifier = "#{product_bundle_identifier}.#{extension_bundle_id}"
       extension_profile_uuid = get_provisioning_profile(output_path: build_folder, username: username, app_identifier: extension_bundle_identifier)
