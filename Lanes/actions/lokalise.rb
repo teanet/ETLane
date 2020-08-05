@@ -12,21 +12,11 @@ module Fastlane
         use_original = params[:use_original] ? 1 : 0
 
         request_data = {
-          # api_token: token,
-          # id: project_identifier,
-          # type: "strings",
-          "original_filenames": true,
-          # directory_prefix: "/",
-          # bundle_filename: "Localization.zip",
-          # ota_plugin_bundle: 0,
-          # export_empty: "base",
+          original_filenames: true,
           export_sort: "first_added", 
-          format: "ios_sdk",
-          # include_comments: include_comments
+          format: "strings",
+          directory_prefix: "",
         }
-          # use_original: use_original,
-          # bundle_structure: "%LANG_ISO%.lproj/Localizable.%FORMAT%",
-
         languages = params[:languages]
         if languages.kind_of? Array then
           request_data["langs"] = languages.to_json
@@ -37,11 +27,8 @@ module Fastlane
           request_data["include_tags"] = tags.to_json
         end
 
-        # uri = URI("https://api.lokalise.com/api/project/export")
         uri = URI("https://api.lokalise.com/api2/projects/#{project_identifier}/files/download")
         request = Net::HTTP::Post.new(uri)
-        # request.set_form_data(request_data)
-
         request.body = request_data.to_json
         request['X-Api-Token'] = token
         request['Content-Type'] = 'application/json'
@@ -49,8 +36,8 @@ module Fastlane
         http.use_ssl = true
         response = http.request(request)
 
-
         jsonResponse = JSON.parse(response.body)
+        puts(jsonResponse.to_s)
         UI.error "Bad response 🉐\n#{response.body}" unless jsonResponse.kind_of? Hash
         fileURL = jsonResponse["bundle_url"]
         if fileURL.kind_of?(String)  then
@@ -69,13 +56,8 @@ module Fastlane
             unzip_file("lokalisetmp/a.zip", destination, clean_destination)
             FileUtils.remove_dir("lokalisetmp")
             UI.success "Localizations extracted to #{destination} 📗 📕 📘"
-
-            fr_path = File.join(destination, "fr-FR.lproj")
-            if File.exist?(fr_path)
-              FileUtils.copy_entry(fr_path, File.join(destination, "fr.lproj"))
-              FileUtils.copy_entry(fr_path, File.join(destination, "fr-CA.lproj"))
-            end
-
+            copy_fr_folder(File.join(destination, "Fitness/Resources"))
+            copy_fr_folder(File.join(destination, "Watch Extension/Resources"))
           else
             UI.error "Response did not include ZIP"
           end
@@ -88,6 +70,13 @@ module Fastlane
         end
       end
 
+      def self.copy_fr_folder(destination)
+        fr_path = File.join(destination, "fr.lproj")
+        puts fr_path
+        if File.exist?(fr_path)
+          FileUtils.copy_entry(fr_path, File.join(destination, "fr-CA.lproj"))
+        end
+      end
 
       def self.unzip_file(file, destination, clean_destination)
         require 'zip'
