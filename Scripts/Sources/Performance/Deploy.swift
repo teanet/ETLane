@@ -43,7 +43,9 @@ extension Deploy {
 	}
 
 	subscript(key: Key) -> String {
-		return self.items[key.rawValue]
+		let text = self.items[key.rawValue]
+		let newLineText = text.replacingOccurrences(of: "\\n", with: "\n")
+		return newLineText
 	}
 
 	var iPhone8IDs: [String] {
