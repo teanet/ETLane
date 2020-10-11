@@ -154,30 +154,35 @@ platform :ios do
   lane :notify_changes do |options|
     changelog = options[:changelog]
     if changelog
-      version = options[:version] ? options[:version] : get_version_number(target: project_name) + " (" + get_build_number() + ")"
       # Сохраним текущий комит
       File.write(last_commit_path, last_git_commit[:commit_hash])
       git_add(path: last_commit_path)
       commit_bump(message: "Freeze changelog")
       push_to_git_remote
-      slack(
-        message: "App successfully uploaded to TestFlight.",
-        success: true,
-        default_payloads: [],
-        attachment_properties: {
-          fields: [ 
-            {
-              title: "Build number",
-              value: version,
-            },
-            {
-              title: "Changelog",
-              value: changelog,
-            },
-          ]
-        }
-      )
+      post_message(options)
     end
+  end
+
+  lane :post_message do |options|
+    version = options[:version] ? options[:version] : get_version_number(target: project_name) + " (" + get_build_number() + ")"
+    changelog = options[:changelog]
+    slack(
+      message: "App successfully uploaded to TestFlight.",
+      success: true,
+      default_payloads: [],
+      attachment_properties: {
+        fields: [ 
+          {
+            title: "Build number",
+            value: version,
+          },
+          {
+            title: "Changelog",
+            value: changelog,
+          },
+        ]
+      }
+    )
   end
 
   # fastlane action new_version bump_type:patch|minor|major
