@@ -69,12 +69,17 @@ extension Deploy {
 		return text
 	}
 
-	func screenshotPrefixToIds() -> [String: [String]] {
-		var prefixToIds = [String: [String]]()
-		prefixToIds["APP_IPHONE_55"] = self[.iPhone8].ids()
-		prefixToIds["APP_IPHONE_65"] = self[.iPhone11].ids()
-		prefixToIds["APP_IPAD_PRO_129"] = self[.iPadPro].ids()
-		prefixToIds["APP_IPAD_PRO_3GEN_129"] = self[.iPadPro3Gen].ids()
+	struct IdWithScale {
+		let id: String
+		let scale: Int
+	}
+
+	func screenshotPrefixToIds() -> [String: [IdWithScale]] {
+		var prefixToIds = [String: [IdWithScale]]()
+		prefixToIds["APP_IPHONE_55"] = self[.iPhone8].ids(scale: 3)
+		prefixToIds["APP_IPHONE_65"] = self[.iPhone11].ids(scale: 3)
+		prefixToIds["APP_IPAD_PRO_129"] = self[.iPadPro].ids(scale: 2)
+		prefixToIds["APP_IPAD_PRO_3GEN_129"] = self[.iPadPro3Gen].ids(scale: 2)
 		return prefixToIds
 	}
 
@@ -107,11 +112,13 @@ extension URL {
 
 fileprivate extension String {
 
-	func ids() -> [String] {
+	func ids(scale: Int) -> [Deploy.IdWithScale] {
 		return self.components(separatedBy: ",").map {
 			($0 as NSString).trimmingCharacters(in: CharacterSet(charactersIn: "0123456789:").inverted)
 		}.filter {
 			!$0.isEmpty
+		}.map {
+			Deploy.IdWithScale(id: $0, scale: scale)
 		}
 	}
 
