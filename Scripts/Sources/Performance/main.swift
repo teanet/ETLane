@@ -7,8 +7,20 @@ do {
 	let path = args.labels[0]
 	print(">>>>>\(args)")
 	let data = try Data(contentsOf: URL(string: path)!)
-	let tsv = String(data: data, encoding: .utf8)!.components(separatedBy: "\n").dropFirst()
-	let deploys = tsv.map { Deploy(string: $0) }
+	var map = [Int: Deploy.NamedKey]()
+	let deploys: [Deploy]
+
+	do {
+		let tsv = String(data: data, encoding: .utf8)!.components(separatedBy: "\n")
+		guard tsv.count > 1 else { print("TSV should have more than 1 line"); exit(-1) }
+		let keys = tsv[0].components(separatedBy: "\t")
+		print("Raw keys: \(keys)")
+		keys.enumerated().forEach { (idx, key) in
+			map[idx] = Deploy.NamedKey(rawValue: key.fixedValue())
+		}
+		print("Found keys: \(map.map({ "\($0.key):\($0.value.rawValue)" }))")
+		deploys = tsv.dropFirst().map { Deploy(string: $0, map: map) }
+	}
 
 	let output = (args.output as NSString).expandingTildeInPath
 	let outputURL = URL(fileURLWithPath: output)

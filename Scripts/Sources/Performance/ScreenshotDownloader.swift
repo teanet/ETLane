@@ -24,7 +24,12 @@ final class ScreenshotDownloader {
 				projectId: self.projectId,
 				ids: ids
 			)
-			return images
+			if let err = images.err {
+				print("⛔️ Download error \(repeatCount - 1), try one more time: \(err)")
+				return self.downloadIds(ids, repeatCount: repeatCount - 1)
+			} else {
+				return images
+			}
 		} catch {
 			print("⛔️ Download batch error \(repeatCount - 1), try one more time: \(error.locd)")
 			return self.downloadIds(ids, repeatCount: repeatCount - 1)
@@ -35,32 +40,36 @@ final class ScreenshotDownloader {
 		var imageIDs = Set<String>()
 
 		for deploy in deploys {
-			imageIDs.formUnion(deploy.iPhone8IDs)
-			imageIDs.formUnion(deploy.iPhoneXIDs)
+			let allprefixes = deploy.screenshotPrefixToIds()
+			print(">>>>>\(allprefixes)")
+
+			for prefixes in allprefixes {
+				imageIDs.formUnion(prefixes.value)
+			}
 		}
 
 		var allImages = [Images]()
 
 		let downloadIDs = Array(imageIDs)
-		let batch = 4
-		let figmaGroup = DispatchGroup()
+		let batch = 10
+//		let figmaGroup = DispatchGroup()
 
 		for idx in stride(from: downloadIDs.indices.lowerBound, to: downloadIDs.indices.upperBound, by: batch) {
 			print("⬇️ Fetching image batch: \(idx)")
 			let subsequence = downloadIDs[idx..<min(idx.advanced(by: batch), downloadIDs.count)]
 
-			figmaGroup.enter()
-			DispatchQueue.global().async {
+//			figmaGroup.enter()
+//			DispatchQueue.global().async {
 				if let images = self.downloadIds(Array(subsequence), repeatCount: 6) {
 					allImages.append(images)
 				} else {
 					print("💥 Download batch error, maybe we should limit requests other way")
 					exit(1)
 				}
-				figmaGroup.leave()
-			}
+//				figmaGroup.leave()
+//			}
 		}
-		figmaGroup.wait()
+//		figmaGroup.wait()
 
 		var allImagesKeys = [String: String]()
 		allImages
@@ -83,9 +92,9 @@ final class ScreenshotDownloader {
 				try fm.createDirectory(at: localeURL, withIntermediateDirectories: true, attributes: [:])
 
 				func saveScreenshots(with ids: [String], prefix: String) {
-					ids.enumerated().forEach {
-						let name = "\(prefix)_\($0.offset).jpg"
-						if let data = imageData[$0.element] {
+					ids.enumerated().forEach { offset, element in
+						let name = "\(offset)_\(prefix)_\(offset).jpg"
+						if let data = imageData[element] {
 							print("ℹ️ Save screenshot \(localeURL.lastPathComponent)/\(name)")
 							do {
 								try data.write(to: localeURL.appendingPathComponent(name))
@@ -95,9 +104,10 @@ final class ScreenshotDownloader {
 						}
 					}
 				}
-
-				saveScreenshots(with: deploy.iPhone8IDs, prefix: "iphone8")
-				saveScreenshots(with: deploy.iPhoneXIDs, prefix: "iPhoneX")
+				let prefixToIds = deploy.screenshotPrefixToIds()
+				prefixToIds.forEach { (prefix, ids) in
+					saveScreenshots(with: ids, prefix: prefix)
+				}
 			} catch {
 				print("⛔️ Create locale folder error: \(error.locd)")
 			}

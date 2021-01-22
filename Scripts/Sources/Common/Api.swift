@@ -28,19 +28,21 @@ public final class Api {
 	public func get<T: Codable>(
 		path: String,
 		query: [String: String] = [:],
-		headers: [String: String] = [:]
+		headers: [String: String] = [:],
+		timeoutInterval: TimeInterval
 	) throws -> T {
-		return try self.method(.get, path: path, query: query, headers: headers)
+		return try self.method(.get, path: path, query: query, headers: headers, timeoutInterval: timeoutInterval)
 	}
 
 	public func post<T: Codable, TBody: Encodable>(
 		path: String,
 		body: TBody,
 		query: [String: String] = [:],
-		headers: [String: String] = [:]
+		headers: [String: String] = [:],
+		timeoutInterval: TimeInterval
 	) throws -> T {
 		let body = try JSONEncoder().encode(body)
-		return try self.method(.post, path: path, query: query, headers: headers, body: body)
+		return try self.method(.post, path: path, query: query, headers: headers, timeoutInterval: timeoutInterval, body: body)
 	}
 
 	private func get<T: Codable>(path: String, completion: @escaping (Result<T, Error>) -> Void) {
@@ -61,6 +63,7 @@ public final class Api {
 		path: String,
 		query: [String: String] = [:],
 		headers: [String: String] = [:],
+		timeoutInterval: TimeInterval,
 		body: Data? = nil
 	) throws -> T {
 		let s = DispatchSemaphore(value: 0)
@@ -69,7 +72,15 @@ public final class Api {
 			statsResponse = result
 			s.signal()
 		}
-		self.method(method, path: path, query: query, headers: headers, body: body, completion: completion)
+		self.method(
+			method,
+			path: path,
+			query: query,
+			headers: headers,
+			body: body,
+			timeoutInterval: timeoutInterval,
+			completion: completion
+		)
 		s.wait()
 		return try statsResponse.get()
 	}
@@ -80,6 +91,7 @@ public final class Api {
 		query: [String: String] = [:],
 		headers: [String: String] = [:],
 		body: Data? = nil,
+		timeoutInterval: TimeInterval = 60,
 		completion: @escaping (Result<T, Error>) -> Void
 	) {
 		let baseURL = self.baseURL.appendingPathComponent(path)
@@ -88,6 +100,7 @@ public final class Api {
 		guard let url = cmp?.url else { completion(.failure(ApiError.pathError)); return }
 
 		var request = URLRequest(url: url)
+		request.timeoutInterval = timeoutInterval
 		request.httpBody = body
 		request.httpMethod = method.rawValue
 		var allHTTPHeaderFields = headers
@@ -111,7 +124,7 @@ public final class Api {
 				return
 			}
 
-			if let string = String(data: data, encoding: .utf8)?.prefix(100) {
+			if let string = String(data: data, encoding: .utf8)?.prefix(3000) {
 				print("Finish: \(string)...")
 			} else {
 				print("Finish")

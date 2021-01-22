@@ -31,6 +31,11 @@ fastlane ios metadata
 fastlane ios notify_changes
 ```
 
+### ios post_message
+```
+fastlane ios post_message
+```
+
 ### ios new_version
 ```
 fastlane ios new_version

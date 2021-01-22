@@ -24,17 +24,16 @@ final class PreviewDownloader {
 			} catch {
 				print("Create locale folder error: \(error.locd)")
 			}
-
 //			#     'iphone58' => [2436, 1125],
 //			#     'iphone65' => [2688, 1242],
-			if let preview = URL(string: deploy[.iPhone8Preview]) {
+			if let preview = URL(string: deploy[.iPhone8]) {
 				let to = localeURL.appendingPathComponent("iphone58.mp4")
 				downloadGroup.enter()
 				self.download(from: preview, to: to) {
 					downloadGroup.leave()
 				}
 			}
-			if let preview = URL(string: deploy[.iPhoneXPreview]) {
+			if let preview = URL(string: deploy[.iPhone11]) {
 				let to = localeURL.appendingPathComponent("iphone65.mp4")
 				downloadGroup.enter()
 				self.download(from: preview, to: to) {

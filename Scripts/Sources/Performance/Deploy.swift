@@ -1,63 +1,85 @@
 import Foundation
 
 struct Deploy {
-	private let items: [String]
+	private let keyValue: [Deploy.NamedKey: String]
 }
 
-extension Deploy.Key {
+extension Deploy.NamedKey {
 
 	var fileName: String? {
 		switch self {
 			case .title: return "name.txt"
 			case .subtitle: return "subtitle.txt"
 			case .keywords: return "keywords.txt"
-			case .releaseNotes: return "release_notes.txt"
+			case .whatsNew: return "release_notes.txt"
 			default: return nil
 		}
 	}
 
 }
 
+public extension Array {
+
+	func isIndexValid(index: Int) -> Bool {
+		return index >= 0 && index < self.count
+	}
+
+	func safeObject(at index: Int) -> Element? {
+		guard self.isIndexValid(index: index) else { return nil }
+		return self[index]
+	}
+}
+
+extension String {
+	func fixedValue() -> String {
+		self
+			.replacingOccurrences(of: "\\n", with: "\n")
+			.replacingOccurrences(of: "\r", with: "")
+	}
+}
+
 extension Deploy {
 
-	enum Key: Int, CaseIterable {
-		case language
-		case locale
-		case title
-		case subtitle
-		case keywords
-		case iPhone8
-		case iPhoneX
-		case releaseNotes
-		case iPhone8Preview
-		case iPhoneXPreview
+	enum NamedKey: String, CaseIterable {
+		case title = "Title"
+		case subtitle = "Subtitle"
+		case keywords = "keywords"
+		case iPhone8 = "iPhone8"
+		case iPhone11 = "iPhone11"
+		case whatsNew = "What's new"
+		case locale = "locale"
 		case previewTimestamp
+		case iPadPro = "iPadPro"
+		case iPadPro3Gen = "iPadPro3Gen"
 	}
 
-	init(string: String) {
-		var cmp = string.components(separatedBy: "\t")
-		while cmp.count < Key.allCases.count {
-			cmp.append("")
+	init(string: String, map: [Int: NamedKey]) {
+		let cmp = string.components(separatedBy: "\t")
+		var keyValue = [Deploy.NamedKey: String]()
+		cmp.enumerated().forEach { (idx, item) in
+			if let key = map[idx] {
+				keyValue[key] = item.fixedValue()
+			}
 		}
-		self.items = cmp
+		self.keyValue = keyValue
 	}
 
-	subscript(key: Key) -> String {
-		let text = self.items[key.rawValue]
-		let newLineText = text.replacingOccurrences(of: "\\n", with: "\n")
-		return newLineText
+	subscript(key: NamedKey) -> String {
+		let text = self.keyValue[key] ?? ""
+		return text
 	}
 
-	var iPhone8IDs: [String] {
-		return self[.iPhone8].ids()
-	}
-
-	var iPhoneXIDs: [String] {
-		return self[.iPhoneX].ids()
+	func screenshotPrefixToIds() -> [String: [String]] {
+		var prefixToIds = [String: [String]]()
+		prefixToIds["APP_IPHONE_55"] = self[.iPhone8].ids()
+		prefixToIds["APP_IPHONE_65"] = self[.iPhone11].ids()
+		prefixToIds["APP_IPAD_PRO_129"] = self[.iPadPro].ids()
+		prefixToIds["APP_IPAD_PRO_3GEN_129"] = self[.iPadPro3Gen].ids()
+		return prefixToIds
 	}
 
 	func createFiles(at url: URL) {
-		Key.allCases.forEach {
+		NamedKey.allCases.forEach {
 			if let fileName = $0.fileName {
 				url.write(self[$0], to: fileName)
 			}
