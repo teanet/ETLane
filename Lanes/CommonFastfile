@@ -53,6 +53,8 @@ platform :ios do
     )
     puts changelog
     version = get_version_number(target: project_name) + " (" + get_build_number() + ")"
+    branch_name = "feature/#{version}"
+    sh("git", "checkout", "-b", branch_name)
     increment_and_push()
     ENV["FL_CHANGELOG"] = nil
 
@@ -71,6 +73,8 @@ platform :ios do
     add_git_tag(
       tag: tag
     )
+    sh("git", "checkout", "master")
+    sh("git", "merge", branch_name)
     push_to_git_remote
     notify_changes(changelog: changelog, version: version)
   end
@@ -188,7 +192,7 @@ platform :ios do
   # fastlane action new_version bump_type:patch|minor|major
   lane :new_version do |options|
     bump_type = options[:bump_type] ? options[:bump_type] : "patch"
-    increment_and_push(bump_type: bump_type)
+    increment_and_push(bump_type: bump_type, push: true)
   end
 
   lane :increment_and_push do |options|
@@ -200,7 +204,9 @@ platform :ios do
       )
     end
     commit_bump(message: "Bump up version")
-    push_to_git_remote
+    if options[:push]
+      push_to_git_remote  
+    end    
   end
 
   lane :rlz_minor do 
