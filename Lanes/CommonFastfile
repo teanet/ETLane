@@ -52,8 +52,9 @@ platform :ios do
       merge_commit_filtering: "exclude_merges" # Optional, lets you filter out merge commits
     )
     puts changelog
-    version = get_version_number(target: project_name) + " (" + get_build_number() + ")"
-    branch_name = "feature/#{version}"
+    build_number = get_build_number()
+    version = get_version_number(target: project_name) + " (" + build_number + ")"
+    branch_name = "feature/#{build_number}"
     sh("git", "checkout", "-b", branch_name)
     increment_and_push()
     ENV["FL_CHANGELOG"] = nil
@@ -69,12 +70,15 @@ platform :ios do
       changelog: "",
       groups: ["#{distribute_group_name}"]
     )
-    tag = get_version_number(target: project_name) + "." + get_build_number()
+
+    tag = get_version_number(target: project_name) + "." + build_number
     add_git_tag(
       tag: tag
     )
     sh("git", "checkout", "master")
     sh("git", "merge", branch_name)
+    sh("git", "branch", "-D", branch_name)
+
     push_to_git_remote
     notify_changes(changelog: changelog, version: version)
   end
