@@ -55,7 +55,7 @@ platform :ios do
     build_number = get_build_number()
     version = get_version_number(target: project_name) + " (" + build_number + ")"
     branch_name = "feature/#{build_number}"
-    sh("git", "checkout", "-b", branch_name)
+    sh("git", "checkout", "-B", branch_name)
     increment_and_push()
     ENV["FL_CHANGELOG"] = nil
 
@@ -75,7 +75,8 @@ platform :ios do
     add_git_tag(
       tag: tag
     )
-    sh("git", "checkout", "master")
+    work_branch = ENV["ET_BRANCH"] || 'master'
+    sh("git", "checkout", work_branch)
     sh("git", "merge", branch_name)
     sh("git", "branch", "-D", branch_name)
 
