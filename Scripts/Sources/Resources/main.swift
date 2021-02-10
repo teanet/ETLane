@@ -2,11 +2,10 @@ import Foundation
 import Common
 
 do {
-	let args = PerformanceParser().parse()
-	try args.check()
-	let path = args.labels[0]
-	print(">>>>>\(args)")
-	let data = try Data(contentsOf: URL(string: path)!)
+	let options = ResourcesParser.parseOrExit()
+	let tsv = options.tsv
+	print(">>>>>\(tsv)")
+	let data = try Data(contentsOf: URL(string: tsv)!)
 	var map = [Int: Deploy.NamedKey]()
 	let deploys: [Deploy]
 
@@ -22,7 +21,7 @@ do {
 		deploys = tsv.dropFirst().map { Deploy(string: $0, map: map) }
 	}
 
-	let output = (args.output as NSString).expandingTildeInPath
+	let output = (options.output as NSString).expandingTildeInPath
 	let outputURL = URL(fileURLWithPath: output)
 	let metadataURL = outputURL.appendingPathComponent("metadata")
 	let fm = FileManager.default
@@ -40,16 +39,16 @@ do {
 		}
 	}
 
-	if !args.skip_screenshots {
+	if options.downloadScreenshots {
 		let downloader = ScreenshotDownloader(
 			outputURL: outputURL,
-			token: args.figmaToken,
-			projectId: args.figmaProjectId
+			token: options.figmaToken,
+			projectId: options.figmaProjectId
 		)
 		try downloader.download(deploys: deploys)
 	}
 
-	if args.download_preview {
+	if options.downloadPreview {
 		let downloader = PreviewDownloader(outputURL: outputURL)
 		try downloader.download(deploys: deploys)
 	}
