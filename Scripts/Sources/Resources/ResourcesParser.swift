@@ -14,6 +14,9 @@ struct ResourcesParser: ParsableArguments {
 	@Option(help: "Figma token")
 	var figmaToken: String
 
+	@Option(help: "Figma screenshots page")
+	var figmaPage: String?
+
 	@Option(help: "Figma project id")
 	var figmaProjectId: String
 

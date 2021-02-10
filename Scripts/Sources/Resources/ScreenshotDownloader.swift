@@ -6,20 +6,21 @@ final class ScreenshotDownloader {
 	private let outputURL: URL
 	private let token: String
 	private let projectId: String
-	init(outputURL: URL, token: String, projectId: String) {
+	private let api: Api
+
+	init(figmaApi: Api, outputURL: URL, token: String, projectId: String) {
 		self.outputURL = outputURL
 		self.token = token
 		self.projectId = projectId
+		self.api = figmaApi
 	}
-
-	let api = Api(baseURL: "https://api.figma.com/v1")
 
 	private func downloadIds(_ ids: [String], repeatCount: Int = 5, scale: Int) -> Images? {
 		if repeatCount < 0 {
 			return nil
 		}
 		do {
-			let images = try api.images(
+			let images = try self.api.images(
 				token: self.token,
 				projectId: self.projectId,
 				ids: ids,
