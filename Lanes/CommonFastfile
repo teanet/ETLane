@@ -106,13 +106,12 @@ platform :ios do
 
     Dir.chdir(scripts_dir) do
       sh(
-        "swift", "run", "Performance", 
+        "swift", "run", "Resources", 
         google_sheet_tsv,
-        "--output=#{build_folder}",
-        "--skip_screenshots=#{skip_screenshots}",
-        "--download_preview=false",
-        "--figmaToken=#{ENV["FIGMA_TOKEN"]}",
-        "--figmaProjectId=#{ENV["FIGMA_PROJECT_ID"]}"
+        "--output", "#{build_folder}",
+        "--skip_screenshots", "#{skip_screenshots}",
+        "--figma-token", "#{ENV["FIGMA_TOKEN"]}",
+        "--figma-project-id", "#{ENV["FIGMA_PROJECT_ID"]}"
       )
     end
 

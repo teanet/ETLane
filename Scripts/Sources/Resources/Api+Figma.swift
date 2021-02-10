@@ -1,6 +1,6 @@
 import Common
 
-struct Page: Codable {
+struct FigmaPage: Codable {
 	struct Node: Codable {
 		struct Document: Codable {
 			struct Child: Codable {
@@ -22,7 +22,7 @@ extension Api {
 		token: String,
 		projectId: String,
 		page: String
-	) throws -> Page {
+	) throws -> FigmaPage {
 		try self.get(
 			path: "files/\(projectId)/nodes",
 			query: [
