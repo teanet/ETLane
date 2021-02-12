@@ -5,6 +5,11 @@ do {
 	let options = ResourcesParser.parseOrExit()
 	let figmaApi = Api(baseURL: "https://api.figma.com/v1")
 
+	NSSetUncaughtExceptionHandler { (exception) in
+		let stack = exception.callStackReturnAddresses
+		print("Stack trace: \(stack)")
+	}
+
 	let deploys = try Deploy.fromTSV(options.tsv)
 
 	let output = (options.output as NSString).expandingTildeInPath
@@ -25,12 +30,11 @@ do {
 		}
 	}
 
-	if options.downloadScreenshots {
+	if options.downloadScreenshots, let pageId = options.figmaPage {
 		print("Load figma screenshots data")
-		//	if let page = options.figmaPage {
-		//		let page = try api.page(token: options.figmaToken, projectId: options.figmaProjectId, page: page)
-		//	}
 
+		let pages = try figmaApi.pages(token: options.figmaToken, projectId: options.figmaProjectId, page: pageId)
+		let screens = pages.screens(for: pageId)
 		print("Download figma screenshots data")
 		let downloader = ScreenshotDownloader(
 			figmaApi: figmaApi,
@@ -38,7 +42,7 @@ do {
 			token: options.figmaToken,
 			projectId: options.figmaProjectId
 		)
-		try downloader.download(deploys: deploys)
+		try downloader.download(screens: screens)
 	}
 
 	if options.downloadPreview {

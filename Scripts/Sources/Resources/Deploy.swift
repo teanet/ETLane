@@ -69,20 +69,6 @@ extension Deploy {
 		return text
 	}
 
-	struct IdWithScale {
-		let id: String
-		let scale: Int
-	}
-
-	func screenshotPrefixToIds() -> [String: [IdWithScale]] {
-		var prefixToIds = [String: [IdWithScale]]()
-		prefixToIds["APP_IPHONE_55"] = self[.iPhone8].ids(scale: 3)
-		prefixToIds["APP_IPHONE_65"] = self[.iPhone11].ids(scale: 3)
-		prefixToIds["APP_IPAD_PRO_129"] = self[.iPadPro].ids(scale: 2)
-		prefixToIds["APP_IPAD_PRO_3GEN_129"] = self[.iPadPro3Gen].ids(scale: 2)
-		return prefixToIds
-	}
-
 	func createFiles(at url: URL) {
 		NamedKey.allCases.forEach {
 			if let fileName = $0.fileName {
@@ -132,16 +118,16 @@ extension Deploy {
 
 }
 
-fileprivate extension String {
-
-	func ids(scale: Int) -> [Deploy.IdWithScale] {
-		return self.components(separatedBy: ",").map {
-			($0 as NSString).trimmingCharacters(in: CharacterSet(charactersIn: "0123456789:").inverted)
-		}.filter {
-			!$0.isEmpty
-		}.map {
-			Deploy.IdWithScale(id: $0, scale: scale)
-		}
-	}
-
-}
+//fileprivate extension String {
+//
+//	func ids(scale: Int) -> [Deploy.IdWithScale] {
+//		return self.components(separatedBy: ",").map {
+//			($0 as NSString).trimmingCharacters(in: CharacterSet(charactersIn: "0123456789:").inverted)
+//		}.filter {
+//			!$0.isEmpty
+//		}.map {
+//			Deploy.IdWithScale(id: $0, scale: scale)
+//		}
+//	}
+//
+//}

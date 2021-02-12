@@ -7,12 +7,17 @@ final class ScreenshotDownloader {
 	private let token: String
 	private let projectId: String
 	private let api: Api
+	private let cacheURL: URL
 
 	init(figmaApi: Api, outputURL: URL, token: String, projectId: String) {
 		self.outputURL = outputURL
 		self.token = token
 		self.projectId = projectId
 		self.api = figmaApi
+
+		self.cacheURL = self.outputURL.appendingPathComponent("screenshots_cache")
+		let fm = FileManager.default
+		try? fm.createDirectory(at: self.cacheURL, withIntermediateDirectories: true, attributes: [:])
 	}
 
 	private func downloadIds(_ ids: [String], repeatCount: Int = 5, scale: Int) -> Images? {
@@ -33,51 +38,50 @@ final class ScreenshotDownloader {
 				return images
 			}
 		} catch {
-			print("⛔️ Download batch error \(repeatCount - 1), try one more time: \(error.locd)")
+			print("⛔️ Download batch error \(repeatCount - 1), try one more time after 15 sec: \(error.locd)")
+			Thread.sleep(forTimeInterval: 15)
 			return self.downloadIds(ids, repeatCount: repeatCount - 1, scale: scale)
 		}
 	}
 
-	func download(ids: Set<String>, scale: Int) -> [Images] {
-		let downloadIDs = Array(ids)
+	func download(ids: [String], scale: Int) -> [Images] {
+		let downloadIDs = ids.unique
 		let batch = 10
-//		let figmaGroup = DispatchGroup()
 		var allImages = [Images]()
 		for idx in stride(from: downloadIDs.indices.lowerBound, to: downloadIDs.indices.upperBound, by: batch) {
 			print("⬇️ Fetching image batch: \(idx)")
 			let subsequence = downloadIDs[idx..<min(idx.advanced(by: batch), downloadIDs.count)]
-
-//			figmaGroup.enter()
-//			DispatchQueue.global().async {
 			if let images = self.downloadIds(Array(subsequence), repeatCount: 6, scale: scale) {
-					allImages.append(images)
-				} else {
-					print("💥 Download batch error, maybe we should limit requests other way")
-					exit(1)
-				}
-//				figmaGroup.leave()
-//			}
+				allImages.append(images)
+				self.downloadImages(images)
+			} else {
+				print("💥 Download batch error, maybe we should limit requests other way")
+				exit(1)
+			}
 		}
-//		figmaGroup.wait()
 		return allImages
 	}
 
-	func download(deploys: [Deploy]) throws {
-		var imageIDs2x = Set<String>()
-		var imageIDs3x = Set<String>()
+	private func downloadImages(_ images: Images) {
+		DispatchQueue.global().async {
+			if let images = images.images {
+				_ = DownloadBatch(images: images, url: self.cacheURL).download()
+			}
+		}
+	}
 
-		for deploy in deploys {
-			let allprefixes = deploy.screenshotPrefixToIds()
-			print(">>>>>\(allprefixes)")
+	func download(screens: [Figma.Screen]) throws {
+		var imageIDs2x = [String]()
+		var imageIDs3x = [String]()
 
-			for prefixes in allprefixes {
-				for ids in prefixes.value {
-					if ids.scale == 2 {
-						imageIDs2x.insert(ids.id)
-					} else if ids.scale == 3 {
-						imageIDs3x.insert(ids.id)
-					}
-				}
+		for screen in screens {
+			switch screen.device.scale {
+				case 2:
+					imageIDs2x.append(screen.id)
+				case 3:
+					imageIDs3x.append(screen.id)
+				default:
+					fatalError("🚨Unknown scale \(screen.device.scale)")
 			}
 		}
 
@@ -94,33 +98,29 @@ final class ScreenshotDownloader {
 					allImagesKeys[image.key] = image.value
 				}
 			}
-		let imageData = DownloadBatch(images: allImagesKeys).download()
+		let imageData = DownloadBatch(images: allImagesKeys, url: self.cacheURL).download()
 
 		let screenshotsURL = self.outputURL.appendingPathComponent("screenshots")
 		let fm = FileManager.default
+		do {
+			try fm.removeItem(at: screenshotsURL)
+		} catch {
+			print("Remove screenshots error: \(error)")
+		}
 		try fm.createDirectory(at: screenshotsURL, withIntermediateDirectories: true, attributes: [:])
 		print("ℹ️ Process screenshots at \(screenshotsURL)")
-		for deploy in deploys {
-			let localeURL = screenshotsURL.appendingPathComponent(deploy[.locale])
+		for screen in screens {
+			let localeURL = screenshotsURL.appendingPathComponent(screen.locale)
 			do {
 				try fm.createDirectory(at: localeURL, withIntermediateDirectories: true, attributes: [:])
 
-				func saveScreenshots(with ids: [Deploy.IdWithScale], prefix: String) {
-					ids.enumerated().forEach { offset, element in
-						let name = "\(offset)_\(prefix)_\(offset).jpg"
-						if let data = imageData[element.id] {
-							print("ℹ️ Save screenshot \(localeURL.lastPathComponent)/\(name)")
-							do {
-								try data.write(to: localeURL.appendingPathComponent(name))
-							} catch {
-								print("⛔️ Save screenshot error: \(error.locd)")
-							}
-						}
+				if let data = imageData[screen.id] {
+					print("ℹ️ Save screenshot \(localeURL.lastPathComponent)/\(screen.fileName)")
+					do {
+						try data.write(to: localeURL.appendingPathComponent(screen.fileName))
+					} catch {
+						print("⛔️ Save screenshot error: \(error.locd)")
 					}
-				}
-				let prefixToIds = deploy.screenshotPrefixToIds()
-				prefixToIds.forEach { (prefix, ids) in
-					saveScreenshots(with: ids, prefix: prefix)
 				}
 			} catch {
 				print("⛔️ Create locale folder error: \(error.locd)")
@@ -128,4 +128,10 @@ final class ScreenshotDownloader {
 		}
 	}
 
+}
+
+extension String {
+	var cacheName: String {
+		"\(self.MD5String).jpg"
+	}
 }

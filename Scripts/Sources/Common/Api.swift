@@ -98,7 +98,6 @@ public final class Api {
 		var cmp = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
 		cmp?.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
 		guard let url = cmp?.url else { completion(.failure(ApiError.pathError)); return }
-
 		var request = URLRequest(url: url)
 		request.timeoutInterval = timeoutInterval
 		request.httpBody = body

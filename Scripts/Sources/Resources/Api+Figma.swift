@@ -1,28 +1,12 @@
 import Common
 
-struct FigmaPage: Codable {
-	struct Node: Codable {
-		struct Document: Codable {
-			struct Child: Codable {
-				let id: String
-				let name: String
-			}
-			let name: String
-			let children: [Child]
-		}
-		let document: Document
-	}
-	let name: String
-	let nodes: [String: Node]
-}
-
 extension Api {
 
-	func page(
+	func pages(
 		token: String,
 		projectId: String,
 		page: String
-	) throws -> FigmaPage {
+	) throws -> Figma.Pages {
 		try self.get(
 			path: "files/\(projectId)/nodes",
 			query: [
