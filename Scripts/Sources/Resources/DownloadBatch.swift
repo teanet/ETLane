@@ -2,7 +2,7 @@ import Foundation
 
 class DownloadBatch {
 
-	static let kMaximumDownloadsCount = 10
+	static let kMaximumDownloadsCount = 3
 
 	private let images: [String: String]
 	private var imagesLeft = [String: String]()
@@ -46,7 +46,7 @@ class DownloadBatch {
 					self.imagesLeft.removeValue(forKey: first.key)
 					self.currentDownloadKeys.insert(first.key)
 				}
-				self.downloadItem(key: first.key, value: first.value, retryCount: 3) { data in
+				self.downloadItem(key: first.key, value: first.value, retryCount: 5) { data in
 					self.syncQueue.sync {
 						self.imageData[first.key] = data
 						_ = self.currentDownloadKeys.remove(first.key)
@@ -83,7 +83,7 @@ class DownloadBatch {
 		let request = URLRequest(
 			url: imageURL,
 			cachePolicy: .reloadIgnoringLocalCacheData,
-			timeoutInterval: 5 * 60
+			timeoutInterval: 7 * 60
 		)
 		self.session.downloadTask(with: request) { (url, r, e) in
 			if let url = url {
