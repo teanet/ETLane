@@ -95,7 +95,8 @@ platform :ios do
     FileUtils.rm_rf(metadata_path)
     screenshots_path = File.join(build_folder, "screenshots")
     preview_path = File.join(build_folder, "previews")
-    if !skip_screenshots
+    download_screenshots = !skip_screenshots
+    if download_screenshots
       FileUtils.rm_rf(screenshots_path)
     end
 
@@ -109,9 +110,10 @@ platform :ios do
         "swift", "run", "Resources", 
         google_sheet_tsv,
         "--output", "#{build_folder}",
-        "--skip_screenshots", "#{skip_screenshots}",
+        "--download-screenshots", "#{download_screenshots}",
         "--figma-token", "#{ENV["FIGMA_TOKEN"]}",
-        "--figma-project-id", "#{ENV["FIGMA_PROJECT_ID"]}"
+        "--figma-project-id", "#{ENV["FIGMA_PROJECT_ID"]}",
+        "--figma-page", "#{ENV["FIGMA_SCREENSHOTS_PAGE_ID"]}"
       )
     end
 
