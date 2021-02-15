@@ -39,7 +39,7 @@ extension Figma.Child {
 
 extension Figma.Screen {
 	var fileName: String {
-		"\(self.page)_\(self.device.id)_\(self.page).jpg"
+		"\(self.device.id)_\(self.page).jpg"
 	}
 }
 
