@@ -16,16 +16,22 @@ extension Device {
 			case .iPadPro, .iPadPro3Gen, .iPadProMessages, .iPadPro3GenMessages: return 2
 		}
 	}
+	var isIMessage: Bool {
+		switch self {
+			case .iPadProMessages, .iPadPro3GenMessages, .iPhone8Messages, .iPhone11Messages: return true
+			default: return false
+		}
+	}
 	var id: String {
 		switch self {
 			case .iPhone8: return "APP_IPHONE_55"
 			case .iPhone11: return "APP_IPHONE_65"
 			case .iPadPro: return "ipad-pro"
 			case .iPadPro3Gen: return "ipadPro129"
-			case .iPadProMessages: return "ipad-pro-messages"
-			case .iPadPro3GenMessages: return "ipadPro129-messages"
-			case .iPhone8Messages: return "iPhone 6 Plus (iMessage)"
-			case .iPhone11Messages: return "iPhone XS Max (iMessage)"
+			case .iPadProMessages: return "ipad-pro"
+			case .iPadPro3GenMessages: return "ipadPro129"
+			case .iPhone8Messages: return "APP_IPHONE_55"
+			case .iPhone11Messages: return "APP_IPHONE_65"
 		}
 	}
 }

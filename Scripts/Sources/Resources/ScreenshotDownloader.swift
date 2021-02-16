@@ -110,7 +110,8 @@ final class ScreenshotDownloader {
 		try fm.createDirectory(at: screenshotsURL, withIntermediateDirectories: true, attributes: [:])
 		print("ℹ️ Process screenshots at \(screenshotsURL)")
 		for screen in screens {
-			let localeURL = screenshotsURL.appendingPathComponent(screen.locale)
+
+			let localeURL = screenshotsURL.localeURL(for: screen)
 			do {
 				try fm.createDirectory(at: localeURL, withIntermediateDirectories: true, attributes: [:])
 
@@ -128,6 +129,18 @@ final class ScreenshotDownloader {
 		}
 	}
 
+}
+
+extension URL {
+	func localeURL(for screen: Figma.Screen) -> URL {
+		var url = self
+		if screen.device.isIMessage {
+			// скриншоты для iMessage должны лежать в папке iMessage/Locale/###.jpg
+			url.appendPathComponent("iMessage")
+		}
+		url.appendPathComponent(screen.locale)
+		return url
+	}
 }
 
 extension String {
