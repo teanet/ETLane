@@ -119,17 +119,17 @@ platform :ios do
 # include_in_app_purchases` flag to `false`
 # run_precheck_before_submit to false
     ENV["DELIVER_METADATA_PATH"] = metadata_path
-    ENV["DELIVER_SCREENSHOTS_PATH"] = screenshots_path
-    ENV["DELIVER_SKIP_METADATA"] = skip_metadata
-    ENV["DELIVER_SKIP_SCREENSHOTS"] = skip_screenshots
-    ENV["DELIVER_SKIP_BINARY_UPLOAD"] = true
-    ENV["DELIVER_FORCE"] = true
-    ENV["DELIVER_SUBMIT_FOR_REVIEW"] = false
+    ENV["DELIVER_SCREENSHOTS_PATH"] = "#{screenshots_path}"
+    ENV["DELIVER_SKIP_METADATA"] = "#{skip_metadata}"
+    ENV["DELIVER_SKIP_SCREENSHOTS"] = "#{skip_screenshots}"
+    ENV["DELIVER_SKIP_BINARY_UPLOAD"] = "true"
+    ENV["DELIVER_FORCE"] = "true"
+    ENV["DELIVER_SUBMIT_FOR_REVIEW"] = "false"
     ENV["DELIVER_USERNAME"] = username
-    ENV["DELIVER_IGNORE_LANGUAGE_DIRECTORY_VALIDATION"] = true
-    ENV["DELIVER_OVERWRITE_SCREENSHOTS"] = true
-    ENV["PRECHECK_INCLUDE_IN_APP_PURCHASES"] = false
-    ENV["DELIVER_RUN_PRECHECK_BEFORE_SUBMIT"] = false
+    ENV["DELIVER_IGNORE_LANGUAGE_DIRECTORY_VALIDATION"] = "true"
+    ENV["DELIVER_OVERWRITE_SCREENSHOTS"] = "true"
+    ENV["PRECHECK_INCLUDE_IN_APP_PURCHASES"] = "false"
+    ENV["DELIVER_RUN_PRECHECK_BEFORE_SUBMIT"] = "false"
 
     begin
       deliver(
