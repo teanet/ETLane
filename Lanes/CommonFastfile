@@ -14,6 +14,7 @@ platform :ios do
 
   desc "Push a new beta build to TestFlight"
   lane :beta do |options|
+    setup_new_session(options)
     provisioning_profile = "AppStore_#{product_bundle_identifier}"
     username = options[:username]
 
@@ -85,6 +86,7 @@ platform :ios do
   end
 
   lane :metadata do |options|
+    setup_new_session(options)
     username = options[:username]
     skip_screenshots = options[:skip_screenshots] != nil ? options[:skip_screenshots] : false
     upload_preview = options[:upload_preview] != nil ? options[:upload_preview] : false
@@ -214,7 +216,6 @@ platform :ios do
   end
 
   lane :rlz do |options|
-
     version = options[:version]
     if version.to_s.empty?
       bump_type = options[:bump_type]
@@ -282,6 +283,34 @@ platform :ios do
         strDevPortal << "#{team['name']} (#{team['teamId']})||"
     end
     puts "DevTeamNames: #{strDevPortal[0..-3]}"
+  end
+
+  lene :setup_new_session do |options|
+    if ENV["ET_USE_SESSION"]
+      session = retrieve_fastlane_session(options)
+      ENV["FASTLANE_SESSION"] = session
+    end
+  end
+
+  lane :retrieve_fastlane_session do |options|
+    # runs shell
+    username = options[:username]
+    spaceauth_output = `bundle exec fastlane spaceauth -u #{username}`
+    # regex the output for the value we need
+    fastlane_session_regex = %r{Pass the following via the FASTLANE_SESSION environment variable:\n(?<session>.+)\n\n\nExample:\n.+}
+    new_session = nil
+    if match = spaceauth_output.match(fastlane_session_regex)
+      # Strip out the fancy formatting
+      new_session = match[:session].gsub("\e[4m\e[36m", "").gsub("\e[0m\e[0m", "")
+    end
+
+    # Yell and quit if unable to parse out session from spaceauth output
+    if new_session.nil?
+      puts "Unable to obtain new session via fastlane spaceauth"
+      exit 1
+    else
+      new_session
+    end
   end
 
 end
