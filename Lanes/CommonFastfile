@@ -285,7 +285,7 @@ platform :ios do
     puts "DevTeamNames: #{strDevPortal[0..-3]}"
   end
 
-  lene :setup_new_session do |options|
+  lane :setup_new_session do |options|
     if ENV["ET_USE_SESSION"]
       session = retrieve_fastlane_session(options)
       ENV["FASTLANE_SESSION"] = session
