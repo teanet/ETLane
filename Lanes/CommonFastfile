@@ -65,24 +65,43 @@ platform :ios do
       beta_app_review_info = eval(ENV["ET_BETA_APP_REVIEW_INFO"])
     end
 
-    upload_to_testflight(
-      username: username,
-      beta_app_review_info: beta_app_review_info,
-      changelog: "",
-      groups: ["#{distribute_group_name}"]
-    )
+    exception = nil
+    begin
+      upload_to_testflight(
+        username: username,
+        beta_app_review_info: beta_app_review_info,
+        changelog: "",
+        groups: ["#{distribute_group_name}"]
+      )
+      tag = get_version_number(target: project_name) + "." + build_number
+      add_git_tag(
+        tag: tag
+      )
+    rescue => ex
+      exception = ex
+      UI.error(ex)
+    end
 
-    tag = get_version_number(target: project_name) + "." + build_number
-    add_git_tag(
-      tag: tag
-    )
+    if exception == nil
+      if changelog
+        # Сохраним текущий комит
+        File.write(last_commit_path, last_git_commit[:commit_hash])
+        git_add(path: last_commit_path)
+        commit_bump(message: "Freeze changelog")
+      end
+    end
     work_branch = ENV["ET_BRANCH"] || 'master'
     sh("git", "checkout", work_branch)
+    sh("git", "pull", "origin", work_branch)
     sh("git", "merge", branch_name)
     sh("git", "branch", "-D", branch_name)
-
     push_to_git_remote
-    notify_changes(changelog: changelog, version: version)
+    if exception == nil
+      post_message(changelog: changelog, version: version)
+    else
+      raise exception
+    end
+
   end
 
   lane :metadata do |options|
@@ -148,24 +167,11 @@ platform :ios do
       else
       end
     end
-    
 
     if upload_preview
       ENV["FASTLANE_ITUNES_TRANSPORTER_PATH"] = "/Applications/Transporter.app/Contents/itms/"
       ENV["FASTLANE_ITUNES_TRANSPORTER_USE_SHELL_SCRIPT"] = "1"
       previews(username: username)
-    end
-  end
-
-  lane :notify_changes do |options|
-    changelog = options[:changelog]
-    if changelog
-      # Сохраним текущий комит
-      File.write(last_commit_path, last_git_commit[:commit_hash])
-      git_add(path: last_commit_path)
-      commit_bump(message: "Freeze changelog")
-      push_to_git_remote
-      post_message(options)
     end
   end
 
