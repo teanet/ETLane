@@ -26,11 +26,6 @@ Push a new beta build to TestFlight
 fastlane ios metadata
 ```
 
-### ios notify_changes
-```
-fastlane ios notify_changes
-```
-
 ### ios post_message
 ```
 fastlane ios post_message
@@ -69,6 +64,16 @@ fastlane ios add_group_to_tf_build
 ### ios first_time
 ```
 fastlane ios first_time
+```
+
+### ios setup_new_session
+```
+fastlane ios setup_new_session
+```
+
+### ios retrieve_fastlane_session
+```
+fastlane ios retrieve_fastlane_session
 ```
 
 
