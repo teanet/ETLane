@@ -6,9 +6,9 @@
 # To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
 #
 
-Pod::Spec.new do |s|
+Gem::Specification.new do |s|
   s.name             = 'ETLane'
-  s.version          = '0.1.42'
+  s.version          = '0.1.43'
   s.summary          = 'A short description of ETLane.'
 
 # This description is used to generate tags and improve search results.
@@ -18,16 +18,12 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+Xcode helper for upload builds and metadata
                        DESC
 
   s.homepage         = 'https://github.com/teanet/ETLane'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'teanet' => 'tea.net@me.com' }
-  s.source           = { :git => 'https://github.com/teanet/ETLane.git', :tag => s.version.to_s }
-  s.social_media_url = 'https://twitter.com/teanet'
-
-  s.ios.deployment_target = '10.0'
-  s.files = ['Scripts/*', 'Lanes/*']
+  s.licenses          = ['MIT']
+  s.authors     = ["teanet"]
+  s.files = Dir['Scripts/*'] + Dir['Scripts/Sources/**/*'] + Dir['Lanes/**/*']
 end
