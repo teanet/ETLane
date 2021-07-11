@@ -21,7 +21,7 @@ module Fastlane
         if languages.kind_of? Array then
           request_data["langs"] = languages.to_json
         end
-
+		request_data["include_comments"] = true
         tags = params[:tags]
         if tags.kind_of? Array then
           request_data["include_tags"] = tags.to_json

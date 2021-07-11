@@ -10,7 +10,6 @@ platform :ios do
   
   build_folder = File.join(Dir.pwd, "..", "build")
   last_commit_path = File.join(Dir.pwd, "last_commit")
-  scripts_dir = File.join(Dir.pwd, "../Pods/ETLane/Scripts")
 
   desc "Push a new beta build to TestFlight"
   lane :beta do |options|
@@ -120,11 +119,8 @@ platform :ios do
     if download_screenshots
       FileUtils.rm_rf(screenshots_path)
     end
-
-    cocoapods(
-      try_repo_update_on_error: true,
-      use_bundle_exec: true,
-    )
+    lane_path = %x( bundle info ETLane --path )
+    scripts_dir = File.join(lane_path.strip, "Scripts")
 
     Dir.chdir(scripts_dir) do
       sh(
