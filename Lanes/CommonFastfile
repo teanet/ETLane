@@ -43,6 +43,7 @@ platform :ios do
       },
     )
     last_commit = File.read(last_commit_path)
+    last_commit = last_commit.strip! || last_commit if last_commit
     changelog = changelog_from_git_commits(
       quiet: true,
       between: [last_commit, "HEAD"],  # Optional, lets you specify a revision/tag range between which to collect commit info
@@ -57,7 +58,6 @@ platform :ios do
     branch_name = "feature/#{build_number}"
     sh("git", "checkout", "-B", branch_name)
     increment_and_push()
-    ENV["FL_CHANGELOG"] = nil
 
     beta_app_review_info = {}
     if ENV["ET_BETA_APP_REVIEW_INFO"]
@@ -69,7 +69,7 @@ platform :ios do
       upload_to_testflight(
         username: username,
         beta_app_review_info: beta_app_review_info,
-        changelog: "",
+        changelog: changelog,
         groups: ["#{distribute_group_name}"]
       )
       tag = get_version_number(target: project_name) + "." + build_number
