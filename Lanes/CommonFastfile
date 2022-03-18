@@ -66,6 +66,10 @@ platform :ios do
 
     exception = nil
     begin
+      app_store_connect_api_key(
+        duration: 1200, # optional (maximum 1200)
+        in_house: false # optional but may be required if using match/sigh
+      )
       upload_to_testflight(
         username: username,
         beta_app_review_info: beta_app_review_info,
@@ -288,31 +292,10 @@ platform :ios do
   end
 
   lane :setup_new_session do |options|
-    if ENV["ET_USE_SESSION"]
-      session = retrieve_fastlane_session(options)
-      ENV["FASTLANE_SESSION"] = session
-    end
-  end
-
-  lane :retrieve_fastlane_session do |options|
-    # runs shell
-    username = options[:username]
-    spaceauth_output = `bundle exec fastlane spaceauth -u #{username}`
-    # regex the output for the value we need
-    fastlane_session_regex = %r{Pass the following via the FASTLANE_SESSION environment variable:\n(?<session>.+)\n\n\nExample:\n.+}
-    new_session = nil
-    if match = spaceauth_output.match(fastlane_session_regex)
-      # Strip out the fancy formatting
-      new_session = match[:session].gsub("\e[4m\e[36m", "").gsub("\e[0m\e[0m", "")
-    end
-
-    # Yell and quit if unable to parse out session from spaceauth output
-    if new_session.nil?
-      puts "Unable to obtain new session via fastlane spaceauth"
-      exit 1
-    else
-      new_session
-    end
+    app_store_connect_api_key(
+      duration: 1200, # optional (maximum 1200)
+      in_house: false # optional but may be required if using match/sigh
+    )
   end
 
 end
