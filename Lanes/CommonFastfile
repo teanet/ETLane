@@ -54,7 +54,8 @@ platform :ios do
       merge_commit_filtering: "exclude_merges" # Optional, lets you filter out merge commits
     )
     puts changelog
-    build_number = latest_testflight_build_number
+    latest_testflight_build_number()
+    build_number = lane_context[SharedValues::LATEST_TESTFLIGHT_BUILD_NUMBER]
     version = get_version_number(target: project_name) + " (" + build_number + ")"
     branch_name = "feature/#{build_number}"
     sh("git", "checkout", "-B", branch_name)
