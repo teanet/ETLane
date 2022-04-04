@@ -13,6 +13,7 @@ platform :ios do
 
   desc "Push a new beta build to TestFlight"
   lane :beta do |options|
+    work_branch = options[:branch]|| ENV["ET_BRANCH"] || 'master'
     setup_new_session(options)
     provisioning_profile = "AppStore_#{product_bundle_identifier}"
     username = options[:username]
@@ -53,7 +54,7 @@ platform :ios do
       merge_commit_filtering: "exclude_merges" # Optional, lets you filter out merge commits
     )
     puts changelog
-    build_number = get_build_number()
+    build_number = latest_testflight_build_number()
     version = get_version_number(target: project_name) + " (" + build_number + ")"
     branch_name = "feature/#{build_number}"
     sh("git", "checkout", "-B", branch_name)
@@ -93,7 +94,6 @@ platform :ios do
         commit_bump(message: "Freeze changelog")
       end
     end
-    work_branch = ENV["ET_BRANCH"] || 'master'
     sh("git", "checkout", work_branch)
     sh("git", "pull", "origin", work_branch)
     sh("git", "merge", branch_name)
