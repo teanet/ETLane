@@ -55,7 +55,7 @@ platform :ios do
     )
     puts changelog
     number = latest_testflight_build_number()
-    build_number = "#{number}"
+    build_number = "#{number + 1}"
     ENV["FL_BUILD_NUMBER_BUILD_NUMBER"] = build_number
     version = get_version_number(target: project_name) + " (" + build_number + ")"
     branch_name = "feature/#{build_number}"
