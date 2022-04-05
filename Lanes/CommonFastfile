@@ -29,6 +29,14 @@ platform :ios do
       provisioningProfiles[extension_bundle_identifier] = extension_profile_uuid
     end
 
+    number = latest_testflight_build_number()
+    build_number = "#{number + 1}"
+    ENV["FL_BUILD_NUMBER_BUILD_NUMBER"] = build_number
+    version = get_version_number(target: project_name) + " (" + build_number + ")"
+    branch_name = "feature/#{build_number}"
+    sh("git", "checkout", "-B", branch_name)
+    increment_and_push()
+
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
     build_app(
       workspace: "#{project_name}.xcworkspace", 
@@ -54,13 +62,6 @@ platform :ios do
       merge_commit_filtering: "exclude_merges" # Optional, lets you filter out merge commits
     )
     puts changelog
-    number = latest_testflight_build_number()
-    build_number = "#{number + 1}"
-    ENV["FL_BUILD_NUMBER_BUILD_NUMBER"] = build_number
-    version = get_version_number(target: project_name) + " (" + build_number + ")"
-    branch_name = "feature/#{build_number}"
-    sh("git", "checkout", "-B", branch_name)
-    increment_and_push()
 
     beta_app_review_info = {}
     if ENV["ET_BETA_APP_REVIEW_INFO"]
