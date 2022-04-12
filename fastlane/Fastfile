@@ -1,6 +1,7 @@
 fastlane_version "2.68.2"
-import("../Lanes/CommonFastfile")
-eval_gemfile(""../Lanes/Pluginfile"") if File.exist?(plugins_path)
+lane_path = %x( bundle info ETLane --path )
+et_path = File.join(lane_path.strip, "Lanes/CommonFastfile")
+import(et_path)
 
 default_platform :ios
 
