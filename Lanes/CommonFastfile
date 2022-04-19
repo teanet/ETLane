@@ -110,18 +110,6 @@ platform :ios do
 
   end
 
-  lane :tg do |options|
-    ENV["TG_BOT_TOKEN"] = "1444430330:AAHizdTPzbTgTF-rIsYr53ioCyKHc3I2F3Q"
-    ENV["TG_CHAT_ID"] = "-1001683750222"
-    telegram(
-      token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
-      chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
-      text: "Hello world, Telegram!", # Required
-      # file: "file.pdf", # Optional. Please note, Bots can currently send files of any type of up to 50 MB in size.
-      # mime_type: "application/pdf" # Required if file exist
-    )
-  end
-
   lane :metadata do |options|
     setup_new_session(options)
     username = options[:username]
@@ -219,15 +207,26 @@ platform :ios do
   end
 
   lane :increment_and_push do |options|
-    increment_build_number
+    push = options[:push]
+    bump = true
+    if get_build_number() == ENV["FL_BUILD_NUMBER_BUILD_NUMBER"] 
+      bump = false
+      push = false
+    else
+      increment_build_number
+    end
     bump_type = options[:bump_type]
     if bump_type
+      bump = true
       increment_version_number(
         bump_type: bump_type
       )
     end
-    commit_bump(message: "Bump up version")
-    if options[:push]
+    if bump
+      commit_bump(message: "Bump up version")  
+    end
+
+    if push
       push_to_git_remote  
     end    
   end
