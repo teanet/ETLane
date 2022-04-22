@@ -68,6 +68,10 @@ platform :ios do
       beta_app_review_info = eval(ENV["ET_BETA_APP_REVIEW_INFO"])
     end
 
+    if ENV["GOOGLE_SERVICES_INFO_PLIST_PATH"]
+      upload_symbols_to_crashlytics()
+    end
+
     exception = nil
     begin
       app_store_connect_api_key(
