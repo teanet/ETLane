@@ -34,6 +34,8 @@ module Fastlane
         request['Content-Type'] = 'application/json'
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
+        http.open_timeout = 300
+        http.read_timeout = 300
         response = http.request(request)
 
         jsonResponse = JSON.parse(response.body)
