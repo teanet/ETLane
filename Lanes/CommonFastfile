@@ -38,8 +38,14 @@ platform :ios do
     increment_and_push()
 
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+
+    if ENV["ET_USE_PROJECT"] == "true"
+      ENV["GYM_PROJECT"] = "#{project_name}.xcodeproj"
+    else
+      ENV["GYM_WORKSPACE"] = "#{project_name}.xcworkspace"
+    end
+
     build_app(
-      workspace: "#{project_name}.xcworkspace", 
       export_xcargs: "PROVISIONING_PROFILE_SPECIFIER='#{provisioning_profile}' DEVELOPMENT_TEAM='#{team_id}' CODE_SIGN_STYLE='Manual'",
       scheme: project_name,
       output_directory: build_folder,
