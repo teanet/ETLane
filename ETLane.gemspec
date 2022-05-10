@@ -8,7 +8,7 @@
 
 Gem::Specification.new do |s|
   s.name             = 'ETLane'
-  s.version          = '0.1.60'
+  s.version          = '0.1.61'
   s.summary          = 'A short description of ETLane.'
 
 # This description is used to generate tags and improve search results.
