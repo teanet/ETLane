@@ -22,8 +22,8 @@ platform :ios do
       ENV["GYM_PROJECT"] = "#{project_name}.xcodeproj"
     else
       ENV["GYM_WORKSPACE"] = "#{project_name}.xcworkspace"
+      cocoapods(repo_update: true)
     end
-    cocoapods
 
     get_certificates(output_path: build_folder, username: username)
     profile_uuid = get_provisioning_profile(output_path: build_folder, username: username, app_identifier: product_bundle_identifier)
