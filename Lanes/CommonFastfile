@@ -18,6 +18,13 @@ platform :ios do
     provisioning_profile = "AppStore_#{product_bundle_identifier}"
     username = options[:username]
 
+    if ENV["ET_USE_PROJECT"] == "true"
+      ENV["GYM_PROJECT"] = "#{project_name}.xcodeproj"
+    else
+      ENV["GYM_WORKSPACE"] = "#{project_name}.xcworkspace"
+    end
+    cocoapods
+
     get_certificates(output_path: build_folder, username: username)
     profile_uuid = get_provisioning_profile(output_path: build_folder, username: username, app_identifier: product_bundle_identifier)
     provisioningProfiles = Hash.new
@@ -38,13 +45,6 @@ platform :ios do
     increment_and_push()
 
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
-
-    if ENV["ET_USE_PROJECT"] == "true"
-      ENV["GYM_PROJECT"] = "#{project_name}.xcodeproj"
-    else
-      ENV["GYM_WORKSPACE"] = "#{project_name}.xcworkspace"
-    end
-
     build_app(
       export_xcargs: "PROVISIONING_PROFILE_SPECIFIER='#{provisioning_profile}' DEVELOPMENT_TEAM='#{team_id}' CODE_SIGN_STYLE='Manual'",
       scheme: project_name,
